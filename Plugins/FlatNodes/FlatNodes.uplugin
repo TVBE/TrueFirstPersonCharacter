@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/brumenn/FlatNodes",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b719437f3fb54c259b34227363df8cab",
 	"SupportURL": "https://github.com/brumenn/FlatNodes/issues",
-	"EngineVersion": "5.0.0",
+	"EngineVersion": "5.1.0",
 	"CanContainContent": true,
 	"Installed": true,
 	"Modules": [
