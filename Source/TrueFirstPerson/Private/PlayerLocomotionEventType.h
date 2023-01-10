@@ -3,13 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlayerLocomotionEventType.generated.h"
 
-/**
- * 
- */
-class PlayerLocomotionEventType
+/** Enumeration for different locomotion triggers for the player. These are used to trigger corresponding sounds and camera animations. */
+UENUM(BlueprintType)
+enum PlayerLocomotionEventType
 {
-public:
-	PlayerLocomotionEventType();
-	~PlayerLocomotionEventType();
+	JUMP				UMETA(DisplayName = "Jump"),
+	FALL				UMETA(DisplayName = "Fall"),
+	LANDINGSOFT			UMETA(DisplayName = "Soft Landing"),
+	LANDINGHARD			UMETA(DisplayName = "Hard Landing"),
+	LANDINGHEAVY		UMETA(DisplayName = "Heavy Landing"),
+	CROUCHSTART			UMETA(DisplayName = "Start Crouching"),
+	CHROUCHEND			UMETA(DisplayName = "Stop Crouching"),
 };
