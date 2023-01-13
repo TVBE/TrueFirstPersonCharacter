@@ -67,7 +67,7 @@
 /DBUILT_FROM_CHANGELIST=23058290
 /DBUILD_VERSION=++UE5+Release-5.1-CL-23058290
 /DBUILD_ICON_FILE_NAME="\"..\\Build\\Windows\\Resources\\Default.ico\""
-/DPROJECT_COPYRIGHT_STRING="Copyright 2023 Tim Verberne"
+/DPROJECT_COPYRIGHT_STRING="Fill out your copyright notice in the Description page of Project Settings."
 /DPROJECT_PRODUCT_NAME="Third Person BP Game Template"
 /DPROJECT_PRODUCT_IDENTIFIER=TrueFirstPerson
 /fo "E:\Github\TrueFirstPersonCharacter\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderGameControl\Default.rc2.res"
