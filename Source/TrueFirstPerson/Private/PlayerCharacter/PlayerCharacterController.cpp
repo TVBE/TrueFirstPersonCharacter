@@ -2,39 +2,64 @@
 
 
 #include "PlayerCharacterController.h"
+#include "PlayerCharacter.h"
+#include "PlayerFlashlightComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 
+void APlayerCharacterController::BeginPlay()
+{
+	Super::BeginPlay();
+	PlayerCharacter = Cast<APlayerCharacter>(this->GetPawn());
+}
 
-const bool APlayerCharacterController::CanMove()
+bool APlayerCharacterController::CanRotate()
+{
+	return true;
+}
+
+bool APlayerCharacterController::CanMove()
 {
 	return true; // Temp
 }
 
-const bool APlayerCharacterController::CanJump()
+bool APlayerCharacterController::CanJump()
 {
-	const float JumpThreshold {80};
+	constexpr float RequiredClearance {80};
 	const float Clearance {GetClearanceAbovePawn()};
-	return (Clearance > JumpThreshold || Clearance == -1.f);
+	return ((Clearance > RequiredClearance || Clearance == -1.f) && CharacterConfiguration.IsJumpingEnabled);
 }
 
-const bool APlayerCharacterController::CanSprint()
+bool APlayerCharacterController::CanSprint()
+{
+	return (CharacterConfiguration.IsSprintingEnabled);
+}
+
+bool APlayerCharacterController::CanCrouch()
 {
 	return true; // Temp
 }
 
-const bool APlayerCharacterController::CanCrouch()
-{
-	return true; // Temp
-}
-
-const bool APlayerCharacterController::CanInteract()
+bool APlayerCharacterController::CanInteract()
 {
 	return false; // Temp
 }
 
-const bool APlayerCharacterController::CanStandUp()
+bool APlayerCharacterController::CanToggleFlashlight()
+{	const UActorComponent* Component {PlayerCharacter->GetComponentByClass(UPlayerFlashlightComponent::StaticClass())};
+	if(Component != nullptr)
+	{
+		return true;
+	};
+	return false;
+}
+
+
+bool APlayerCharacterController::CanStandUp()
 {
-	return true; // Temp
+	constexpr float RequiredClearance {100};
+	const float Clearance {GetClearanceAbovePawn()};
+	return (Clearance > RequiredClearance || Clearance == -1.f);
 }
 
 void APlayerCharacterController::StartSprinting()
@@ -57,7 +82,7 @@ void APlayerCharacterController::StopCrouching()
 	// Temp
 }
 
-const float APlayerCharacterController::GetClearanceAbovePawn()
+float APlayerCharacterController::GetClearanceAbovePawn()
 {
 	const AActor* Actor {this->GetPawn()};
 	const FVector Start {Actor->GetActorLocation()};
@@ -72,7 +97,7 @@ const float APlayerCharacterController::GetClearanceAbovePawn()
 	return -1.f;
 }
 
-const FHitResult APlayerCharacterController::GetCameraLookAtQuery()
+FHitResult APlayerCharacterController::GetCameraLookAtQuery()
 {
 	const float TraceLength {250.f};
 	const FVector Start {this->PlayerCameraManager->GetCameraLocation()};
