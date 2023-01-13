@@ -1,4 +1,4 @@
-// Copyright 2022 Les Androïds Associés. All Rights Reserved.
+// Copyright 2022 Les AndroÃ¯ds AssociÃ©s. All Rights Reserved.
 
 #include "FlatNodes.h"
 #include "Interfaces/IPluginManager.h"

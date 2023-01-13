@@ -2,6 +2,7 @@
 
 
 #include "PlayerCharacter.h"
+#include "Math/Vector.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -21,6 +22,7 @@ void APlayerCharacter::BeginPlay()
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
+	UpdateMovementStatus();
 	Super::Tick(DeltaTime);
 
 }
@@ -31,4 +33,38 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+bool APlayerCharacter::IsPlayerMoving()
+{
+	bool Moving {this->GetVelocity().IsNearlyZero(0.1)};
+	return Moving;
+}
+
+// Called every frame.
+void APlayerCharacter::UpdateMovementStatus()
+{
+	IsMoving = IsPlayerMoving();
+}
+
+void APlayerCharacter::SetIsJumping(bool Value)
+{
+	IsJumping = Value;
+}
+
+void APlayerCharacter::SetIsSprinting(bool Value)
+{
+	IsSprinting = Value;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
