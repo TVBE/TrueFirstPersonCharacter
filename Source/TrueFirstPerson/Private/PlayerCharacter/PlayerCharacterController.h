@@ -23,8 +23,61 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Actors, Meta = (DisplayName = "Player Character"))
 	class APlayerCharacter* PlayerCharacter;
 
+	/** If true, the player is currently pressing the sprint button. */
+	UPROPERTY(BlueprintReadOnly, Category = Intention, Meta = (DisplayName = "Is Sprint Pending"))
+	bool IsSprintPending;
+
+	/** If true, the player is currently pressing the crouch button. */
+	UPROPERTY(BlueprintReadOnly, Category = Intention, Meta = (DisplayName = "Is Crouch Pending"))
+	bool IsCrouchPending;
+	
+
 private:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
+
+	// User Input Callback Functions
+	/** Adjusts the character's horizontal orientation using a gamepad or mouse. */
+	UFUNCTION()
+	void HandleHorizontalRotation(float Value);
+
+	/** Adjusts the character's vertical orientation using a gamepad or mouse. */
+	UFUNCTION()
+	void HandleVerticalRotation(float Value);
+
+	/** Tries to move the character forward or backward depending on the input. */
+	UFUNCTION()
+	void HandleLongitudinalMovementInput(float Value);
+
+	/** Tries to move the character forward or backward depending on the input. */
+	UFUNCTION()
+	void HandleLateralMovementInput(float Value);
+
+	/** Handles the callback for when the player has pressed the Jump button */
+	UFUNCTION()
+	void HandleJumpActionPressed();
+
+	/** Handles the callback for when the player has pressed the Sprint button. */
+	UFUNCTION()
+	void HandleSprintActionPressed();
+
+	/** Handles the callback for when the player has released the Sprint button. */
+	UFUNCTION()
+	void HandleSprintActionReleased();
+
+	/** Handles the callback for when the player has pressed the Crouch button. */
+	UFUNCTION()
+	void HandleCrouchActionPressed();
+
+	/** Handles the callback for when the player has released the Crouch button. */
+	UFUNCTION()
+	void HandleCrouchActionReleased();
+
+	/** Handles the callback for when the player has pressed the ToggleFlashlight button. */
+	UFUNCTION()
+	void HandleFlashlightActionPressed();
+
+
 
 protected:
 	

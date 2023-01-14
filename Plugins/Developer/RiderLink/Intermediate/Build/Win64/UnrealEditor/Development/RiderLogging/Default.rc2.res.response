@@ -2,11 +2,11 @@
 /D_WIN64
 /l 0x409
 /I "."
-/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\ucrt"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\shared"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22621.0\winrt"
+/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
 /DIS_PROGRAM=0
 /DUE_EDITOR=1
 /DENABLE_PGO_PROFILE=0
@@ -70,5 +70,5 @@
 /DPROJECT_COPYRIGHT_STRING="Copyright 2023 Tim Verberne"
 /DPROJECT_PRODUCT_NAME="Third Person BP Game Template"
 /DPROJECT_PRODUCT_IDENTIFIER=TrueFirstPerson
-/fo "E:\Github\TrueFirstPersonCharacter\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
+/fo "F:\Github\TrueFirstPersonCharacter\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UnrealEditor\Development\RiderLogging\Default.rc2.res"
 "..\Build\Windows\Resources\Default.rc2"

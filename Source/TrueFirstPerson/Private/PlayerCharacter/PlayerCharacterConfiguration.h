@@ -24,7 +24,7 @@ struct FPlayerCharacterConfiguration
 	bool IsSprintingEnabled {true};
 
 	/** Defines the movement speed when sprinting. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Sprinting, Meta = (DisplayName = "Sprint Speed", EditCondition="IsSprintingEnabled"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Sprinting, Meta = (DisplayName = "Sprint Speed", EditCondition= "IsSprintingEnabled") )
 	float SprintSpeed {600};
 
 	/** When set to enabled, the character is allowed to crouch. */
@@ -32,9 +32,17 @@ struct FPlayerCharacterConfiguration
 	bool IsCrouchingEnabled {true};
 
 	/** Defines the characters movement speed while crouched. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Crouching, Meta = (Displayname = "Crouch Speed", EditCondition="IsCrouchingEnabled"))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Crouching, Meta = (Displayname = "Crouch Speed", EditCondition= "IsCrouchingEnabled" ))
 	float CrouchSpeed {200};
+
+	/** When set to enabled, The crouch button will act as a toggle for the crouch action.
+	 *	Enable this if you do not want the player to have to hold down the crouch button to remain crouched. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Crouching, Meta = (Displayname = "Crouch Toggle Mode", EditCondition= "IsCrouchingEnabled" , AdvancedDisplay = "true"))
+	bool EnableCrouchToggle {false};
 	
+	/** Defines the rotation rate when using a gamepad.*/
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Camera, Meta = (Displayname = "Gamepad Rotation Rate"))
+	float RotationRate {150};
  
 	/** Constructor with default values. */
 	FPlayerCharacterConfiguration()

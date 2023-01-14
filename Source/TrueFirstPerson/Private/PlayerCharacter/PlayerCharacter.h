@@ -13,10 +13,6 @@ class APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
-	 /** If true, the character is currently moving. This can include unintentional movement, such as being pushed by another object or falling. */
-	UPROPERTY(BlueprintReadOnly, Category = Locomotion, Meta = (DisplayName = "Is Moving"))
-	bool IsMoving;
-
 	/** If true, the character is currently sprinting. */
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion, Meta = (DisplayName = "Is Sprinting"))
 	bool IsSprinting;
@@ -27,13 +23,8 @@ protected:
 
 
 private:
-	/** Checks whether the player is currently moving. */
-	bool IsPlayerMoving();
-
 	/** Checks whether the player has landed after falling. */
 	bool IsPlayerLanding();
-
-	
 
 public:
 	// Sets default values for this character's properties
@@ -42,10 +33,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	// Updates the locomotion state properties.
-	void UpdateMovementStatus();
-
+	
 	/** Specify whether the character is currently jumping. */
 	UFUNCTION(BlueprintCallable, Category = Locomotion, Meta = (DisplayName = "Set IsJumping", CompactNodeTitle = "Is Jumping"))
 	void SetIsJumping(bool Value);
@@ -60,6 +48,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 
 private: 
 	

@@ -7,7 +7,7 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -22,7 +22,6 @@ void APlayerCharacter::BeginPlay()
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
-	UpdateMovementStatus();
 	Super::Tick(DeltaTime);
 
 }
@@ -32,18 +31,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-}
-
-bool APlayerCharacter::IsPlayerMoving()
-{
-	bool Moving {this->GetVelocity().IsNearlyZero(0.1)};
-	return Moving;
-}
-
-// Called every frame.
-void APlayerCharacter::UpdateMovementStatus()
-{
-	IsMoving = IsPlayerMoving();
 }
 
 void APlayerCharacter::SetIsJumping(bool Value)
