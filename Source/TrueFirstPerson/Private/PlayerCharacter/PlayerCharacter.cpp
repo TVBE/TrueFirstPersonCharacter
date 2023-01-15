@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Math/Vector.h"
 
 // Sets default values
@@ -42,6 +44,9 @@ void APlayerCharacter::SetIsSprinting(bool Value)
 {
 	IsSprinting = Value;
 }
+
+
+
 
 
 

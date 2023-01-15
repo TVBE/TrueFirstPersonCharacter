@@ -39,7 +39,7 @@ protected:
 	void SetIsJumping(bool Value);
 
 	/** Specify whether the character is currently sprinting. */
-	UFUNCTION(BlueprintCallable, Category = Locomotion, Meta = (DisplayName = "Set IsSprinting", CompactNodeTitle = "Is Sprinting"))
+	UFUNCTION(BlueprintCallable, Category = Locomotion, Meta = (DisplayName = "Set IsSprinting", CompactNodeTitle = "Is Sprinting", DeprecatedFunction))
 	void SetIsSprinting(bool Value);
 
 public:	

@@ -5,7 +5,9 @@
 #include "AIHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerCharacter.h"
+#include "Math/Rotator.h"
 #include "PlayerFlashlightComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "GameFramework/PawnMovementComponent.h"
 
@@ -26,6 +28,7 @@ void APlayerCharacterController::BeginPlay()
 		const FString PawnName {UKismetSystemLibrary::GetDisplayName(GetPawn())};
 		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacterController expected a Pawn of type PlayerCharacter, but got assigned to an instance of %s instead"), *PawnName);
 	}
+
 }
 // Called when the controller is constructed.
 void APlayerCharacterController::SetupInputComponent()
@@ -47,6 +50,13 @@ void APlayerCharacterController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("ToggleFlashlight"),IE_Pressed, this, &APlayerCharacterController::HandleFlashlightActionPressed);
 }
 
+void APlayerCharacterController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	UpdatePendingActions();
+}
+
+
 void APlayerCharacterController::HandleHorizontalRotation(float Value)
 {
 	if(CanRotate())
@@ -67,7 +77,8 @@ void APlayerCharacterController::HandleLongitudinalMovementInput(float Value)
 {
 	if(CanMove())
 	{
-		GetCharacter()->AddMovementInput(FVector(0, 0, GetControlRotation().Yaw), Value);
+		const FRotator Rotation {FRotator(0, GetControlRotation().Yaw, 0)};
+		GetCharacter()->AddMovementInput((Rotation.Vector()), Value);
 	}
 }
 
@@ -75,7 +86,8 @@ void APlayerCharacterController::HandleLateralMovementInput(float Value)
 {
 	if(CanMove())
 	{
-		GetCharacter()->AddMovementInput(FVector(0, 0, GetControlRotation().Yaw+90), Value);
+		const FRotator Rotation {FRotator(0, GetControlRotation().Yaw+90, 0)};
+		GetCharacter()->AddMovementInput((Rotation.Vector()), Value);
 	}
 }
 
@@ -90,15 +102,19 @@ void APlayerCharacterController::HandleJumpActionPressed()
 void APlayerCharacterController::HandleSprintActionPressed()
 {
 	IsSprintPending = true;
+	if(CanSprint())
+	{
+		StartSprinting();
+	}
 }
 
 
 void APlayerCharacterController::HandleSprintActionReleased()
 {
 	IsSprintPending = false;
-	if(GetCharacter()->GetMovementComponent()->IsCrouching() && CanStandUp())
+	if(IsSprinting())
 	{
-		StopCrouching();
+		StopSprinting();
 	}
 }
 
@@ -137,6 +153,33 @@ void APlayerCharacterController::HandleFlashlightActionPressed()
 	}
 }
 
+void APlayerCharacterController::UpdatePendingActions()
+{
+	if(IsSprintPending && !IsSprinting() && CanSprint())
+	{
+		if(!GetCharacter()->GetMovementComponent()->IsCrouching())
+		{
+			StartSprinting();
+		}
+		else if(GetCharacter()->GetMovementComponent()->IsCrouching() && CanStandUp())
+		{
+			StopCrouching();
+			StartSprinting();
+			IsCrouchPending = false;
+		}
+	}
+	if(IsCrouchPending && !GetCharacter()->GetMovementComponent()->IsCrouching() && CanCrouch())
+	{
+			if(IsSprinting())
+			{
+				StopSprinting();
+				IsSprintPending = false;
+			}
+			StartCrouching();
+	}
+}
+
+
 
 bool APlayerCharacterController::CanRotate()
 {
@@ -163,13 +206,20 @@ bool APlayerCharacterController::CanSprint()
 
 bool APlayerCharacterController::CanCrouch()
 {
-	return CharacterConfiguration.IsCrouchingEnabled && !GetCharacter()->GetMovementComponent()->IsCrouching();
+	return CharacterConfiguration.IsCrouchingEnabled;
 }
 
 bool APlayerCharacterController::CanInteract()
 {
 	return false; // Temp
 }
+
+/** Checks whether the MovementComponent of the character is equal to the Sprinting Speed defined in the Character Configuration. */
+bool APlayerCharacterController::IsSprinting()
+{
+	return GetCharacter()->GetMovementComponent()->GetMaxSpeed() == CharacterConfiguration.SprintSpeed;
+}
+
 
 bool APlayerCharacterController::CanToggleFlashlight()
 {	const UActorComponent* Component {PlayerCharacter->GetComponentByClass(UPlayerFlashlightComponent::StaticClass())};
@@ -190,12 +240,12 @@ bool APlayerCharacterController::CanStandUp()
 
 void APlayerCharacterController::StartSprinting()
 {
-	// Temp
+	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.SprintSpeed;
 }
 
 void APlayerCharacterController::StopSprinting()
 {
-	// Temp
+	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.WalkSpeed;
 }
 
 void APlayerCharacterController::StartCrouching()

@@ -30,10 +30,15 @@ protected:
 	/** If true, the player is currently pressing the crouch button. */
 	UPROPERTY(BlueprintReadOnly, Category = Intention, Meta = (DisplayName = "Is Crouch Pending"))
 	bool IsCrouchPending;
-	
+
+	APlayerCharacterController()
+	{
+		
+	}
 
 private:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupInputComponent() override;
 
 	// User Input Callback Functions
@@ -76,6 +81,10 @@ private:
 	/** Handles the callback for when the player has pressed the ToggleFlashlight button. */
 	UFUNCTION()
 	void HandleFlashlightActionPressed();
+	
+	/** Checks if any player actions are currently pending and tries to complete them. */
+	UFUNCTION()
+	void UpdatePendingActions();
 
 
 
@@ -108,6 +117,10 @@ protected:
 	/** Checks whether the player is currently looking at an interactable object. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Can Interact"))
 	bool CanInteract();
+
+	/** Checks whether the player is currently sprinting. */
+	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Is Sprinting"))
+	bool IsSprinting();
 
 	/** Checks whether the player can toggle the flashlight. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Can Toggle Flashlight"))
