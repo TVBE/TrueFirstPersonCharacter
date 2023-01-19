@@ -179,7 +179,10 @@ void APlayerCharacterController::UpdatePendingActions()
 	}
 }
 
-
+bool APlayerCharacterController::GetHasMovementInput()
+{
+	return InputComponent->GetAxisValue("Move Longitudinal") || InputComponent->GetAxisValue("Move Lateral");
+}
 
 bool APlayerCharacterController::CanRotate()
 {

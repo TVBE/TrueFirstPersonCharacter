@@ -33,63 +33,14 @@ protected:
 
 	APlayerCharacterController()
 	{
-		
 	}
 
-private:
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
-	virtual void SetupInputComponent() override;
-
-	// User Input Callback Functions
-	/** Adjusts the character's horizontal orientation using a gamepad or mouse. */
-	UFUNCTION()
-	void HandleHorizontalRotation(float Value);
-
-	/** Adjusts the character's vertical orientation using a gamepad or mouse. */
-	UFUNCTION()
-	void HandleVerticalRotation(float Value);
-
-	/** Tries to move the character forward or backward depending on the input. */
-	UFUNCTION()
-	void HandleLongitudinalMovementInput(float Value);
-
-	/** Tries to move the character forward or backward depending on the input. */
-	UFUNCTION()
-	void HandleLateralMovementInput(float Value);
-
-	/** Handles the callback for when the player has pressed the Jump button */
-	UFUNCTION()
-	void HandleJumpActionPressed();
-
-	/** Handles the callback for when the player has pressed the Sprint button. */
-	UFUNCTION()
-	void HandleSprintActionPressed();
-
-	/** Handles the callback for when the player has released the Sprint button. */
-	UFUNCTION()
-	void HandleSprintActionReleased();
-
-	/** Handles the callback for when the player has pressed the Crouch button. */
-	UFUNCTION()
-	void HandleCrouchActionPressed();
-
-	/** Handles the callback for when the player has released the Crouch button. */
-	UFUNCTION()
-	void HandleCrouchActionReleased();
-
-	/** Handles the callback for when the player has pressed the ToggleFlashlight button. */
-	UFUNCTION()
-	void HandleFlashlightActionPressed();
-	
-	/** Checks if any player actions are currently pending and tries to complete them. */
-	UFUNCTION()
-	void UpdatePendingActions();
-
-
+public:
+	/** Returns whether the PlayerController has any movement input or not. */
+	UFUNCTION(BlueprintPure, Category = Input, Meta = (DisplayName = "Has Any Movement Input"))
+	bool GetHasMovementInput();
 
 protected:
-	
 	/** Checks whether the player can currently rotate. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Can Rotate"))
 	bool CanRotate();
@@ -149,5 +100,54 @@ protected:
 	/** Performs a collision query in front of the camera and returns the hit result. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Get Camera Look At Query"))
 	FHitResult GetCameraLookAtQuery();
+
+private:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void SetupInputComponent() override;
+
+	// User Input Callback Functions
+	/** Adjusts the character's horizontal orientation using a gamepad or mouse. */
+	UFUNCTION()
+	void HandleHorizontalRotation(float Value);
+
+	/** Adjusts the character's vertical orientation using a gamepad or mouse. */
+	UFUNCTION()
+	void HandleVerticalRotation(float Value);
+
+	/** Tries to move the character forward or backward depending on the input. */
+	UFUNCTION()
+	void HandleLongitudinalMovementInput(float Value);
+
+	/** Tries to move the character forward or backward depending on the input. */
+	UFUNCTION()
+	void HandleLateralMovementInput(float Value);
+
+	/** Handles the callback for when the player has pressed the Jump button */
+	UFUNCTION()
+	void HandleJumpActionPressed();
+
+	/** Handles the callback for when the player has pressed the Sprint button. */
+	UFUNCTION()
+	void HandleSprintActionPressed();
+
+	/** Handles the callback for when the player has released the Sprint button. */
+	UFUNCTION()
+	void HandleSprintActionReleased();
+
+	/** Handles the callback for when the player has pressed the Crouch button. */
+	UFUNCTION()
+	void HandleCrouchActionPressed();
+
+	/** Handles the callback for when the player has released the Crouch button. */
+	UFUNCTION()
+	void HandleCrouchActionReleased();
+
+	/** Handles the callback for when the player has pressed the ToggleFlashlight button. */
+	UFUNCTION()
+	void HandleFlashlightActionPressed();
 	
+	/** Checks if any player actions are currently pending and tries to complete them. */
+	UFUNCTION()
+	void UpdatePendingActions();
 };
