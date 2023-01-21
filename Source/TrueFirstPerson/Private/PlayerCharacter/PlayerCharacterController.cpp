@@ -7,9 +7,14 @@
 #include "PlayerCharacter.h"
 #include "Math/Rotator.h"
 #include "PlayerFlashlightComponent.h"
+#include "PlayerGroundMovementType.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "GameFramework/PawnMovementComponent.h"
+// Called on construction
+APlayerCharacterController::APlayerCharacterController()
+{
+}
 
 // Called when the game starts.
 void APlayerCharacterController::BeginPlay()
@@ -17,19 +22,27 @@ void APlayerCharacterController::BeginPlay()
 	Super::BeginPlay();
 	
 	// Get a casted reference to the PlayerCharacter
-	if (GetPawn() == nullptr)
+	if(GetPawn() == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacterController is not assigned to a pawn."));
 		return;
 	}
 	PlayerCharacter = Cast<APlayerCharacter>(this->GetPawn());
-	if (PlayerCharacter == nullptr)
+	if(PlayerCharacter == nullptr)
 	{
 		const FString PawnName {UKismetSystemLibrary::GetDisplayName(GetPawn())};
 		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacterController expected a Pawn of type PlayerCharacter, but got assigned to an instance of %s instead"), *PawnName);
 	}
-
+	
+	// Restrict the CameraManager view pitch.
+	if(PlayerCameraManager != nullptr)
+	{
+		PlayerCameraManager->ViewPitchMax = CharacterConfiguration.MaximumViewPitch;
+		PlayerCameraManager->ViewPitchMin = CharacterConfiguration.MinimumViewPitch;
+	}
+	
 }
+
 // Called when the controller is constructed.
 void APlayerCharacterController::SetupInputComponent()
 {
@@ -181,8 +194,36 @@ void APlayerCharacterController::UpdatePendingActions()
 
 bool APlayerCharacterController::GetHasMovementInput()
 {
-	return InputComponent->GetAxisValue("Move Longitudinal") || InputComponent->GetAxisValue("Move Lateral");
+	if(InputComponent != nullptr)
+	{
+		return InputComponent->GetAxisValue("Move Longitudinal") || InputComponent->GetAxisValue("Move Lateral");
+	}
+	return 0.0;
 }
+
+float APlayerCharacterController::GetHorizontalRotationInput()
+{
+	if(InputComponent != nullptr)
+	{
+		return InputComponent->GetAxisValue("Horizontal Rotation");
+	}
+	return 0.0;
+}
+
+/** Checks the current movement state and returns a corresponding enumeration value. This function is designed for Blueprint usage to easily implement branching behavior. */
+TEnumAsByte<EPlayerGroundMovementType> APlayerCharacterController::GetGroundMovementType()
+{
+	if(IsSprinting())
+	{
+		return EPlayerGroundMovementType::Sprinting;
+	}
+	if(GetCharacter()->GetMovementComponent()->IsMovingOnGround())
+	{
+		return EPlayerGroundMovementType::Walking;
+	}
+	return EPlayerGroundMovementType::Idle;
+}
+
 
 bool APlayerCharacterController::CanRotate()
 {
@@ -220,7 +261,7 @@ bool APlayerCharacterController::CanInteract()
 /** Checks whether the MovementComponent of the character is equal to the Sprinting Speed defined in the Character Configuration. */
 bool APlayerCharacterController::IsSprinting()
 {
-	return GetCharacter()->GetMovementComponent()->GetMaxSpeed() == CharacterConfiguration.SprintSpeed;
+	return GetCharacter()->GetMovementComponent()->GetMaxSpeed() == CharacterConfiguration.SprintSpeed && GetCharacter()->GetMovementComponent()->IsMovingOnGround();
 }
 
 

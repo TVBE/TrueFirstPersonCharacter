@@ -21,24 +21,31 @@ protected:
 
 	/** Reference to the controlled pawn as a PlayerCharacter instance.*/
 	UPROPERTY(BlueprintReadOnly, Category = Actors, Meta = (DisplayName = "Player Character"))
-	class APlayerCharacter* PlayerCharacter;
+	class APlayerCharacter* PlayerCharacter {nullptr};
 
 	/** If true, the player is currently pressing the sprint button. */
 	UPROPERTY(BlueprintReadOnly, Category = Intention, Meta = (DisplayName = "Is Sprint Pending"))
-	bool IsSprintPending;
+	bool IsSprintPending {false};
 
 	/** If true, the player is currently pressing the crouch button. */
 	UPROPERTY(BlueprintReadOnly, Category = Intention, Meta = (DisplayName = "Is Crouch Pending"))
-	bool IsCrouchPending;
+	bool IsCrouchPending {false};
 
-	APlayerCharacterController()
-	{
-	}
+public:
+	APlayerCharacterController();
 
 public:
 	/** Returns whether the PlayerController has any movement input or not. */
 	UFUNCTION(BlueprintPure, Category = Input, Meta = (DisplayName = "Has Any Movement Input"))
 	bool GetHasMovementInput();
+
+	/** Returns the current horizontal rotation input value from the PlayerController. */
+	UFUNCTION(BlueprintPure, Category = Input, Meta = (DisplayName = "Get Horizontal Rotation Input"))
+	float GetHorizontalRotationInput();
+
+	/** Checks and returns the current player ground movement type. */
+	UFUNCTION(BlueprintPure, Category = Locomotion, Meta = (DisplayName = "Get Ground Movement Type"))
+	TEnumAsByte<EPlayerGroundMovementType> GetGroundMovementType();
 
 protected:
 	/** Checks whether the player can currently rotate. */
