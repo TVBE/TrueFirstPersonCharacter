@@ -2,7 +2,7 @@
 
 #include "PlayerCharacterConfiguration.h"
 
-/** void FPlayerCharacterConfiguration::ValidateData()
+void FPlayerCharacterConfiguration::ValidateData()
 {
 	if(IsSprintingEnabled && WalkSpeed >= SprintSpeed)
 	{
@@ -13,4 +13,4 @@
 	{
 		
 	}
-} */
+}

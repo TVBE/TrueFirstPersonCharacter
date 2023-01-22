@@ -2,12 +2,13 @@
 
 
 #include "PlayerCharacterController.h"
-#include "AIHelpers.h"
+#include "TrueFirstPerson/TrueFirstPerson.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerCharacter.h"
 #include "Math/Rotator.h"
 #include "PlayerFlashlightComponent.h"
 #include "PlayerGroundMovementType.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "GameFramework/PawnMovementComponent.h"
@@ -24,14 +25,14 @@ void APlayerCharacterController::BeginPlay()
 	// Get a casted reference to the PlayerCharacter
 	if(GetPawn() == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacterController is not assigned to a pawn."));
+		UE_LOG(LogPlayerCharacterController, Warning, TEXT("PlayerCharacterController is not assigned to a pawn."));
 		return;
 	}
 	PlayerCharacter = Cast<APlayerCharacter>(this->GetPawn());
 	if(PlayerCharacter == nullptr)
 	{
 		const FString PawnName {UKismetSystemLibrary::GetDisplayName(GetPawn())};
-		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacterController expected a Pawn of type PlayerCharacter, but got assigned to an instance of %s instead"), *PawnName);
+		UE_LOG(LogPlayerCharacterController, Warning, TEXT("PlayerCharacterController expected a Pawn of type PlayerCharacter, but got assigned to an instance of %s instead"), *PawnName);
 	}
 	
 	// Restrict the CameraManager view pitch.
@@ -108,6 +109,16 @@ void APlayerCharacterController::HandleJumpActionPressed()
 {
 	if(CanJump())
 	{
+		float Clearance = GetClearanceAbovePawn();
+		if(Clearance <= 175 && Clearance != -1.f)
+		{
+			// We limit the JumpZVelocity of the player under a certain clearance to prevent the character from bumping its head into the object above.
+			GetCharacter()->GetCharacterMovement()->JumpZVelocity = Clearance * 4.25;
+		}
+		else
+		{
+			GetCharacter()->GetCharacterMovement()->JumpZVelocity = CharacterConfiguration.JumpVelocity;
+		}
 		GetCharacter()->Jump();
 	}
 }
@@ -211,13 +222,13 @@ float APlayerCharacterController::GetHorizontalRotationInput()
 }
 
 /** Checks the current movement state and returns a corresponding enumeration value. This function is designed for Blueprint usage to easily implement branching behavior. */
-TEnumAsByte<EPlayerGroundMovementType> APlayerCharacterController::GetGroundMovementType()
+EPlayerGroundMovementType APlayerCharacterController::GetGroundMovementType()
 {
 	if(IsSprinting())
 	{
 		return EPlayerGroundMovementType::Sprinting;
 	}
-	if(GetCharacter()->GetMovementComponent()->IsMovingOnGround())
+	if(GetCharacter()->GetMovementComponent()->IsMovingOnGround() && GetCharacter()->GetVelocity().SquaredLength() >= 25)
 	{
 		return EPlayerGroundMovementType::Walking;
 	}
@@ -237,7 +248,7 @@ bool APlayerCharacterController::CanMove()
 
 bool APlayerCharacterController::CanJump()
 {
-	constexpr float RequiredClearance {80};
+	constexpr float RequiredClearance {60};
 	const float Clearance {GetClearanceAbovePawn()};
 	return ((Clearance > RequiredClearance || Clearance == -1.f) && CharacterConfiguration.IsJumpingEnabled && !GetCharacter()->GetMovementComponent()->IsFalling());
 }
@@ -311,10 +322,11 @@ float APlayerCharacterController::GetClearanceAbovePawn()
 	FCollisionQueryParams CollisionParams;
 	if (Actor->GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
 	{
-		return HitResult.Distance;
+		return HitResult.Distance - GetCharacter()->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+		// We subtract the capsule collision half height as this is the distance between the center of the SkeletalMesh and the top of the head.
 	}
 	
-	return -1.f;
+	return -1.f; // We return -1 if no hit result is produced by the collision query. This means that there is more than 500 units of clearance above the character.
 }
 
 FHitResult APlayerCharacterController::GetCameraLookAtQuery()

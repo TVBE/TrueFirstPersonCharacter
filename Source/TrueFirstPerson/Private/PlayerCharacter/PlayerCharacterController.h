@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "PlayerGroundMovementType.h"
 #include "PlayerCharacterConfiguration.h"
 #include "PlayerCharacterController.generated.h"
 
@@ -45,7 +46,7 @@ public:
 
 	/** Checks and returns the current player ground movement type. */
 	UFUNCTION(BlueprintPure, Category = Locomotion, Meta = (DisplayName = "Get Ground Movement Type"))
-	TEnumAsByte<EPlayerGroundMovementType> GetGroundMovementType();
+	EPlayerGroundMovementType GetGroundMovementType();
 
 protected:
 	/** Checks whether the player can currently rotate. */

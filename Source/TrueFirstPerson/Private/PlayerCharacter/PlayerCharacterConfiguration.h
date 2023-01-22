@@ -20,6 +20,10 @@ struct FPlayerCharacterConfiguration
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Jumping, Meta = (DisplayName = "Enable Jumping"))
 	bool IsJumpingEnabled {true};
 
+	/** Defines the jump velocity of the character. */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Jumping, Meta = (DisplayName = "Jump Velocity", ClampMin = "0.0", UIMin = "0.0", ClampMax = "1000.0", UIMax = "1000.0"))
+	float JumpVelocity {700.f};
+
 	/** When set to enabled, the character is allowed to sprint. */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Sprinting, Meta = (DisplayName = "Enable Sprinting"))
 	bool IsSprintingEnabled {true};
@@ -56,10 +60,10 @@ struct FPlayerCharacterConfiguration
 	/** Constructor with default values. */
 	FPlayerCharacterConfiguration()
 	{
-		// ValidateData();
+		ValidateData();
 	}
 
 	/** Checks some values to make sure that the character configuration is correct. */
-	// void ValidateData();
+	void ValidateData();
 	
 };
