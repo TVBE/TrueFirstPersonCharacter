@@ -3,8 +3,14 @@
 
 #include "PlayerCharacter.h"
 
-#include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerAudioComponent.h"
+#include "PlayerCameraController.h"
+#include "PlayerFlashlightController.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Math/Vector.h"
+#include "TrueFirstPerson/TrueFirstPerson.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -12,6 +18,43 @@ APlayerCharacter::APlayerCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Construct Camera.
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(this->RootComponent);
+	Camera->SetRelativeLocation(FVector(22.0, 0.0, 75.0));
+	Camera->FieldOfView = 90.0;
+	Camera->bUsePawnControlRotation = false;
+
+	// Construct FlashlightSpringArm.
+	FlashlightSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("Flashlight Spring Arm"));
+	FlashlightSpringArm->SetupAttachment(this->RootComponent);
+	FlashlightSpringArm->SetRelativeLocation(FVector(20.12,2.6,40.9));
+	FlashlightSpringArm->SetComponentTickEnabled(false); // We only want the flashlight spring arm to update when the flashlight is enabled.
+	FlashlightSpringArm->TargetArmLength = 0.0;
+	FlashlightSpringArm->bDoCollisionTest = false;
+	FlashlightSpringArm->bUsePawnControlRotation = false;
+	FlashlightSpringArm->bEnableCameraLag = false;
+	FlashlightSpringArm->bEnableCameraRotationLag = true;
+	FlashlightSpringArm->CameraRotationLagSpeed = 8.5;
+	
+	// Construct Flashlight.
+	Flashlight = CreateDefaultSubobject<USpotLightComponent>(TEXT("Flashlight"));
+	Flashlight->SetupAttachment(FlashlightSpringArm);
+	Flashlight->Intensity = 5000.0;
+	Flashlight->SetVisibility(false); // We don't want the flashlight to be enabled on startup.
+
+	// Construct AudioComponent
+	PlayerAudioComponent = CreateDefaultSubobject<UPlayerAudioComponent>(TEXT("Player Audio Component"));
+	PlayerAudioComponent->bWantsInitializeComponent = true;
+	
+	// Construct CameraController
+	CameraController = CreateDefaultSubobject<UPlayerCameraController>(TEXT("Player Camera Controller"));
+	CameraController->bWantsInitializeComponent = true;
+	
+	// Construct FlashlightController
+	FlashlightController = CreateDefaultSubobject<UPlayerFlashlightController>(TEXT("Player Flashlight Controller"));
+	
+	
 }
 
 // Called when the game starts or when spawned
@@ -40,10 +83,15 @@ void APlayerCharacter::SetIsJumping(bool Value)
 	IsJumping = Value;
 }
 
-void APlayerCharacter::SetIsSprinting(bool Value)
+// Called by the PlayerController
+void APlayerCharacter::SetIsSprinting(bool Value, APlayerController* PlayerController)
 {
-	IsSprinting = Value;
+	if(Controller == GetController())
+	{
+		IsSprinting = Value;
+	}
 }
+
 
 
 

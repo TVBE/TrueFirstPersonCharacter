@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerFlashlightComponent.h"
+#include "PlayerFlashlightController.h"
 
 // Sets default values for this component's properties
-UPlayerFlashlightComponent::UPlayerFlashlightComponent()
+UPlayerFlashlightController::UPlayerFlashlightController()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -15,7 +15,7 @@ UPlayerFlashlightComponent::UPlayerFlashlightComponent()
 
 
 // Called when the game starts
-void UPlayerFlashlightComponent::BeginPlay()
+void UPlayerFlashlightController::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -25,7 +25,7 @@ void UPlayerFlashlightComponent::BeginPlay()
 
 
 // Called every frame
-void UPlayerFlashlightComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPlayerFlashlightController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

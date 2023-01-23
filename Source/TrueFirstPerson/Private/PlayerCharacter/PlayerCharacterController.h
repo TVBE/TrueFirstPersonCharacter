@@ -76,11 +76,7 @@ protected:
 	/** Checks whether the player is currently looking at an interactable object. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Can Interact"))
 	bool CanInteract();
-
-	/** Checks whether the player is currently sprinting. */
-	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Is Sprinting"))
-	bool IsSprinting();
-
+	
 	/** Checks whether the player can toggle the flashlight. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Can Toggle Flashlight"))
 	bool CanToggleFlashlight();
@@ -158,4 +154,8 @@ private:
 	/** Checks if any player actions are currently pending and tries to complete them. */
 	UFUNCTION()
 	void UpdatePendingActions();
+
+	/** Checks if the player can continue with any actions they are currently performing. */
+	UFUNCTION()
+	void UpdateCurrentActions();
 };

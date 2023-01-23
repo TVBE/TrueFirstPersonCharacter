@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlayerFlashlightComponent.generated.h"
+#include "PlayerFlashlightController.generated.h"
 
 
-UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UPlayerFlashlightComponent : public UActorComponent
+UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class UPlayerFlashlightController : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPlayerFlashlightComponent();
+	UPlayerFlashlightController();
 
 protected:
 	// Called when the game starts

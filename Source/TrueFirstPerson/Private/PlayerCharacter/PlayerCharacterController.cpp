@@ -6,7 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerCharacter.h"
 #include "Math/Rotator.h"
-#include "PlayerFlashlightComponent.h"
+#include "PlayerFlashlightController.h"
 #include "PlayerGroundMovementType.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -67,6 +67,7 @@ void APlayerCharacterController::SetupInputComponent()
 void APlayerCharacterController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	UpdateCurrentActions();
 	UpdatePendingActions();
 }
 
@@ -136,7 +137,7 @@ void APlayerCharacterController::HandleSprintActionPressed()
 void APlayerCharacterController::HandleSprintActionReleased()
 {
 	IsSprintPending = false;
-	if(IsSprinting())
+	if(PlayerCharacter->GetIsSprinting())
 	{
 		StopSprinting();
 	}
@@ -177,9 +178,18 @@ void APlayerCharacterController::HandleFlashlightActionPressed()
 	}
 }
 
+void APlayerCharacterController::UpdateCurrentActions()
+{
+	if(PlayerCharacter->GetIsSprinting() && !CanSprint())
+	{
+		StopSprinting();
+	}
+}
+
+
 void APlayerCharacterController::UpdatePendingActions()
 {
-	if(IsSprintPending && !IsSprinting() && CanSprint())
+	if(PlayerCharacter->GetIsSprinting() && CanSprint())
 	{
 		if(!GetCharacter()->GetMovementComponent()->IsCrouching())
 		{
@@ -194,7 +204,7 @@ void APlayerCharacterController::UpdatePendingActions()
 	}
 	if(IsCrouchPending && !GetCharacter()->GetMovementComponent()->IsCrouching() && CanCrouch())
 	{
-			if(IsSprinting())
+			if(PlayerCharacter->GetIsSprinting())
 			{
 				StopSprinting();
 				IsSprintPending = false;
@@ -224,7 +234,7 @@ float APlayerCharacterController::GetHorizontalRotationInput()
 /** Checks the current movement state and returns a corresponding enumeration value. This function is designed for Blueprint usage to easily implement branching behavior. */
 EPlayerGroundMovementType APlayerCharacterController::GetGroundMovementType()
 {
-	if(IsSprinting())
+	if(PlayerCharacter->GetIsSprinting())
 	{
 		return EPlayerGroundMovementType::Sprinting;
 	}
@@ -256,7 +266,7 @@ bool APlayerCharacterController::CanJump()
 bool APlayerCharacterController::CanSprint()
 {
 	return CharacterConfiguration.IsSprintingEnabled && GetCharacter()->GetMovementComponent()->IsMovingOnGround()
-			&& GetInputAxisValue("Move Longitudinal") > 0.25 && FMath::Abs(GetInputAxisValue("Move Lateral")) < 0.5;
+			&& GetInputAxisValue("Move Longitudinal") > 0.5 && FMath::Abs(GetInputAxisValue("Move Lateral")) <= GetInputAxisValue("Move Longitudinal");
 }
 
 bool APlayerCharacterController::CanCrouch()
@@ -269,15 +279,8 @@ bool APlayerCharacterController::CanInteract()
 	return false; // Temp
 }
 
-/** Checks whether the MovementComponent of the character is equal to the Sprinting Speed defined in the Character Configuration. */
-bool APlayerCharacterController::IsSprinting()
-{
-	return GetCharacter()->GetMovementComponent()->GetMaxSpeed() == CharacterConfiguration.SprintSpeed && GetCharacter()->GetMovementComponent()->IsMovingOnGround();
-}
-
-
 bool APlayerCharacterController::CanToggleFlashlight()
-{	const UActorComponent* Component {PlayerCharacter->GetComponentByClass(UPlayerFlashlightComponent::StaticClass())};
+{	const UActorComponent* Component {PlayerCharacter->GetComponentByClass(UPlayerFlashlightController::StaticClass())};
 	if(Component != nullptr)
 	{
 		return true;
@@ -296,11 +299,13 @@ bool APlayerCharacterController::CanStandUp()
 void APlayerCharacterController::StartSprinting()
 {
 	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.SprintSpeed;
+	PlayerCharacter->SetIsSprinting(true, this);
 }
 
 void APlayerCharacterController::StopSprinting()
 {
 	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.WalkSpeed;
+	PlayerCharacter->SetIsSprinting(false, this);
 }
 
 void APlayerCharacterController::StartCrouching()
