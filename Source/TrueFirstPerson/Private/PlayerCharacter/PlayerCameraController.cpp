@@ -2,14 +2,13 @@
 
 
 #include "PlayerCameraController.h"
-
-#include <string>
-
 #include "PlayerCharacter.h"
 #include "PlayerCharacterController.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "TrueFirstPerson/TrueFirstPerson.h"
 
 // Sets default values for this component's properties
@@ -109,7 +108,7 @@ void UPlayerCameraController::UpdateCameraLocation()
 // Called by TickComponent
 void UPlayerCameraController::UpdateCameraRotation()
 {
-	const FRotator Roll {GetCameraShakeOffset() + GetCameraLeanOffset()};
+	const FRotator Roll {GetCameraShakeOffset() +  GetCameraLeanOffset()};
 	PlayerCharacter->GetCamera()->SetWorldRotation(Roll + PlayerCharacter->GetControlRotation());
 }
 
@@ -131,17 +130,16 @@ FRotator UPlayerCameraController::GetCameraShakeOffset()
 	default: IntensityMultiplier = 0.3; // Miscellaneous
 		break;
 	}
-	// Multiply the OscillationMultiplier with the CameraConfiguration CameraShakeIntensity scalar.
-	IntensityMultiplier = IntensityMultiplier * CameraConfiguration.CameraShakeIntensity;
-	
 	// Get a mapped deviation value that scales the shake intensity and speed. Used to introduce some cyclical pseudo-random variance.
-	double Deviation {FMath::GetMappedRangeValueClamped(FVector2d(-1.0, 1.00), FVector2d(0.75, 1.5), FMath::Cos(GetWorld()->GetDeltaSeconds() * 2.4))};
+	double Deviation {FMath::GetMappedRangeValueClamped(FVector2d(-1.0, 1.00), FVector2d(0.75, 1.5), UKismetMathLibrary::Cos(UGameplayStatics::GetTimeSeconds(GetWorld()) * 2.4))};
 	
 	// Calculate the target shake rotation.
-	double TargetRollOffset {FMath::Cos(GetWorld()->GetDeltaSeconds() * Deviation) * IntensityMultiplier * Deviation};
+	float Intensity {CameraConfiguration.CameraShakeIntensity};
+	double TargetRollOffset {UKismetMathLibrary::Cos(UGameplayStatics::GetTimeSeconds(GetWorld()) * Deviation) * IntensityMultiplier * Deviation * CameraConfiguration.CameraShakeIntensity};
+
 	
 	// Interpolate between the current camera roll and the target camera roll.
-	CameraShakeRoll = FMath::FInterpTo(CameraShakeRoll, TargetRollOffset, GetWorld()->GetDeltaSeconds(), 6.0);
+	CameraShakeRoll = FMath::FInterpTo(CameraShakeRoll, TargetRollOffset, GetWorld()->GetDeltaSeconds(), 3.0);
 	
 	// Return a rotator with the camera roll offset.
 	return FRotator(0, 0, CameraShakeRoll);

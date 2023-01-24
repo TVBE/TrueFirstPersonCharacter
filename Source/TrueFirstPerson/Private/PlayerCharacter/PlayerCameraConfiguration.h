@@ -25,7 +25,7 @@ struct FPlayerCameraConfiguration
 
 	/** The intensity of camera shake effects when moving. */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Camera Shake Intensity"))
-	float CameraShakeIntensity {0.2};
+	float CameraShakeIntensity {0.22};
  
 	/** Constructor with default values. */
 	FPlayerCameraConfiguration()

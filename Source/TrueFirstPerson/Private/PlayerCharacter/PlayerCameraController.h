@@ -29,7 +29,7 @@ private:
 
 	/** The camera configuration. */
 	UPROPERTY(BlueprintReadOnly, Category = Configuration, Meta = (DisplayName = "Camera Configuration", AllowPrivateAccess = "true"))
-	FPlayerCameraConfiguration CameraConfiguration {FPlayerCameraConfiguration()};
+	FPlayerCameraConfiguration CameraConfiguration;
 
 	/** The default head socket location from the skeletal mesh of the PlayerCharacterPawn. */
 	UPROPERTY()
