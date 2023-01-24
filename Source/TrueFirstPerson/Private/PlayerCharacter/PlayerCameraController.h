@@ -56,6 +56,10 @@ private:
 	UFUNCTION()
 	void HandleCharacterControllerChanged(APawn* Pawn, AController* OldController, AController* NewController);
 
+	/** Updates the camera relative location. */
+	UFUNCTION()
+	void UpdateCameraLocation();
+	
 	/** Updates the camera's field of view according to the Players movement. */
 	UFUNCTION()
 	void UpdateCameraFieldOfView();
