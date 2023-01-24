@@ -34,6 +34,14 @@ private:
 	/** The default head socket location from the skeletal mesh of the PlayerCharacterPawn. */
 	UPROPERTY()
 	FVector HeadSocketLocation {FVector()};
+
+	/** The roll offset value of the camera shake rotation. */
+	UPROPERTY()
+	double CameraShakeRoll {0.0};
+
+	/** The roll offset value of the camera lean rotation. */
+	UPROPERTY()
+	double CameraLeanRoll {0.0};
 	
 
 	
@@ -59,6 +67,15 @@ private:
 	/** Updates the camera relative location. */
 	UFUNCTION()
 	void UpdateCameraLocation();
+
+	/** Updates the camera world rotation*/
+	void UpdateCameraRotation();
+
+	/** Returns a rotation offset for the camera to simulate the camera shaking while moving. */
+	FRotator GetCameraShakeOffset();
+
+	/** Returns a rotation offset for the camera when the player rotates while sprinting. Used to simulate leaning when running into bends. */
+	FRotator GetCameraLeanOffset();
 	
 	/** Updates the camera's field of view according to the Players movement. */
 	UFUNCTION()

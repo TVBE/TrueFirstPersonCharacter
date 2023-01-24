@@ -22,6 +22,10 @@ struct FPlayerCameraConfiguration
 	/** The FoV for the camera when the player is sprinting. Set this higher than the default FoV to get some perceived increase in speed for the player. */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Sprint Field Of View"))
 	float SprintFOV {96.f};
+
+	/** The intensity of camera shake effects when moving. */
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Camera Shake Intensity"))
+	float CameraShakeIntensity {0.2};
  
 	/** Constructor with default values. */
 	FPlayerCameraConfiguration()

@@ -8,14 +8,13 @@
 #include "PlayerCharacter.h"
 #include "PlayerCharacterController.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "TrueFirstPerson/TrueFirstPerson.h"
 
 // Sets default values for this component's properties
 UPlayerCameraController::UPlayerCameraController()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
@@ -63,8 +62,9 @@ void UPlayerCameraController::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if(PlayerCharacter != nullptr)
+	if(PlayerCharacter != nullptr && PlayerCharacterController != nullptr)
 	{
+		UpdateCameraRotation();
 		UpdateCameraLocation();
 		UpdateCameraFieldOfView();
 	}
@@ -79,9 +79,9 @@ void UPlayerCameraController::UpdateCameraLocation()
 	const double PitchAlpha
 	{FMath::GetMappedRangeValueClamped(FVector2d(-30.0, -55.0), FVector2d(0.0, 1.0), PlayerCharacter->GetCamera()->GetComponentRotation().Pitch)};
 
-	UE_LOG(LogPlayerCameraController, Warning, TEXT("%f"), PitchAlpha);
+	// UE_LOG(LogPlayerCameraController, Log, TEXT(PitchAlpha: "%f"), PitchAlpha);
 
-	// Get the delta position of the current head socket location in relation to the default location
+	// Get the delta position of the current head socket location in relation to the default location. This allows us to introduce some socket-bound headbobbing with scalable intensity.
 	const FVector DeltaPosition {FVector(0, 0,(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetLocation() - HeadSocketLocation).Z * 0.5)};
 	
 	FVector Result {FVector()};
@@ -98,15 +98,77 @@ void UPlayerCameraController::UpdateCameraLocation()
 		// Calculate the target location if the player is looking down.
 		FVector DownwardCameraLocation {PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetLocation() + FVector(CameraConfiguration.CameraOffset.X * 0.625, 0, 0)
 		- FVector(0, 0, (PlayerCharacter->GetVelocity().X * 0.02))};
-
-		
-			
 		
 		// Interpolate between the two target locations depending on PitchAlpha.
-		Result = FMath::Lerp(UprightCameraLocation, DownwardCameraLocation, PitchAlpha); //NOTE: In UE 5.1 using FMath::Lerp with two FVectors will cause semantic errors, but the code will compile just fine.
+		Result = FMath::Lerp(UprightCameraLocation, DownwardCameraLocation, PitchAlpha); //NOTE: In UE 5.1 using FMath::Lerp with two FVectors can cause semantic errors, but the code will compile just fine.
 	}
 	PlayerCharacter->GetCamera()->SetRelativeLocation(Result);
 
+}
+
+// Called by TickComponent
+void UPlayerCameraController::UpdateCameraRotation()
+{
+	const FRotator Roll {GetCameraShakeOffset() + GetCameraLeanOffset()};
+	PlayerCharacter->GetCamera()->SetWorldRotation(Roll + PlayerCharacter->GetControlRotation());
+}
+
+// Called by UpdateCameraRotation
+FRotator UPlayerCameraController::GetCameraShakeOffset()
+{
+	// Get the current ground movement type from the PlayerController.
+	EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
+	// Get a oscillation multiplier value according to the ground movement type.
+	float IntensityMultiplier {0.0};
+	switch(MovementType)
+	{
+	case 0: IntensityMultiplier = 0.1; // Idle
+		break;
+	case 1: IntensityMultiplier = 0.3; // Walking
+		break;
+	case 2: IntensityMultiplier = 1.65; // Sprinting
+		break;
+	default: IntensityMultiplier = 0.3; // Miscellaneous
+		break;
+	}
+	// Multiply the OscillationMultiplier with the CameraConfiguration CameraShakeIntensity scalar.
+	IntensityMultiplier = IntensityMultiplier * CameraConfiguration.CameraShakeIntensity;
+	
+	// Get a mapped deviation value that scales the shake intensity and speed. Used to introduce some cyclical pseudo-random variance.
+	double Deviation {FMath::GetMappedRangeValueClamped(FVector2d(-1.0, 1.00), FVector2d(0.75, 1.5), FMath::Cos(GetWorld()->GetDeltaSeconds() * 2.4))};
+	
+	// Calculate the target shake rotation.
+	double TargetRollOffset {FMath::Cos(GetWorld()->GetDeltaSeconds() * Deviation) * IntensityMultiplier * Deviation};
+	
+	// Interpolate between the current camera roll and the target camera roll.
+	CameraShakeRoll = FMath::FInterpTo(CameraShakeRoll, TargetRollOffset, GetWorld()->GetDeltaSeconds(), 6.0);
+	
+	// Return a rotator with the camera roll offset.
+	return FRotator(0, 0, CameraShakeRoll);
+}
+
+// Called by UpdateCameraRotation
+FRotator UPlayerCameraController::GetCameraLeanOffset()
+{
+	FRotator Rotation {FRotator()};
+	double TargetRoll {0.0};
+	if(PlayerCharacter->GetIsSprinting())
+	{
+		constexpr float LateralVelocityMultiplier {0.002353};
+		const FVector WorldVelocity {PlayerCharacter->GetMovementComponent()->Velocity};
+		const FVector LocalVelocity {PlayerCharacter->GetActorTransform().InverseTransformVector(WorldVelocity)};
+		const double LateralVelocityRoll {LocalVelocity.Y * LateralVelocityMultiplier};
+		
+		// When the player is rotating horizontally while sprinting, we want the camera to lean into that direction.
+		constexpr float MaxRotationLean {14.f};
+		const float HorizontalRotationRoll{FMath::Clamp(PlayerCharacterController->GetHorizontalRotationInput() * 2, -MaxRotationLean, MaxRotationLean)};;
+
+		TargetRoll = LateralVelocityRoll + HorizontalRotationRoll;
+	}
+	// Interpolate the roll value.
+	CameraLeanRoll = FMath::FInterpTo(CameraLeanRoll, TargetRoll, GetWorld()->GetDeltaSeconds(), 4.f);
+	Rotation = (FRotator(0, 0, CameraLeanRoll));
+	return Rotation;
 }
 
 
@@ -119,8 +181,6 @@ void UPlayerCameraController::UpdateCameraFieldOfView()
 		float TargetFOV = PlayerCharacter->GetIsSprinting() ? CameraConfiguration.SprintFOV : CameraConfiguration.DefaultFOV;
 		PlayerCharacter->GetCamera()->FieldOfView = FMath::FInterpTo(PlayerCharacter->GetCamera()->FieldOfView, TargetFOV, GetWorld()->GetDeltaSeconds(),2.f );
 	}
-	
-	
 }
 
 

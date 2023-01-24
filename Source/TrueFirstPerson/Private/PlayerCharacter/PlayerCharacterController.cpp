@@ -49,10 +49,8 @@ void APlayerCharacterController::SetupInputComponent()
 {
 	Super :: SetupInputComponent ();
 
-	InputComponent->BindAxis(TEXT("Gamepad Horizontal Rotation"), this, &APlayerCharacterController::HandleHorizontalRotation);
-	InputComponent->BindAxis(TEXT("Mouse Horizontal Rotation"), this,	&APlayerCharacterController::HandleHorizontalRotation);
-	InputComponent->BindAxis(TEXT("Gamepad Vertical Rotation"), this,  &APlayerCharacterController::HandleVerticalRotation);
-	InputComponent->BindAxis(TEXT("Mouse Vertical Rotation"), this, &APlayerCharacterController::HandleVerticalRotation);
+	InputComponent->BindAxis(TEXT("Horizontal Rotation"), this, &APlayerCharacterController::HandleHorizontalRotation);
+	InputComponent->BindAxis(TEXT("Vertical Rotation"), this,  &APlayerCharacterController::HandleVerticalRotation);
 	InputComponent->BindAxis(TEXT("Move Longitudinal"), this, &APlayerCharacterController::HandleLongitudinalMovementInput);
 	InputComponent->BindAxis(TEXT("Move Lateral"),this, &APlayerCharacterController::HandleLateralMovementInput);
 
