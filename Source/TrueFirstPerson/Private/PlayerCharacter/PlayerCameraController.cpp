@@ -175,12 +175,25 @@ FRotator UPlayerCameraController::GetCameraLeanOffset()
 // Called by TickComponent
 void UPlayerCameraController::UpdateCameraFieldOfView()
 {
-	if(PlayerCharacter->GetIsSprinting() && PlayerCharacter->GetCamera()->FieldOfView != CameraConfiguration.SprintFOV ||
+	FPlayerCharacterConfiguration Configuration {PlayerCharacterController->GetPlayerCharacterConfiguration()};
+	float TargetFOV {CameraConfiguration.DefaultFOV};
+	const FVector WorldVelocity {PlayerCharacter->GetMovementComponent()->Velocity};
+	const FVector LocalVelocity {PlayerCharacter->GetActorTransform().InverseTransformVector(WorldVelocity)};
+	if (LocalVelocity.X > Configuration.WalkSpeed * 1.1)
+	{
+		TargetFOV = FMath::GetMappedRangeValueClamped(FVector2D(Configuration.WalkSpeed * 1.1, Configuration.SprintSpeed),
+			FVector2D(CameraConfiguration.DefaultFOV, CameraConfiguration.SprintFOV), LocalVelocity.X);
+	} 
+
+	PlayerCharacter->GetCamera()->FieldOfView = FMath::FInterpTo(PlayerCharacter->GetCamera()->FieldOfView, TargetFOV, GetWorld()->GetDeltaSeconds(),2.f );
+	
+	// Implementation that only checks if the player is sprinting
+	/* if(PlayerCharacter->GetIsSprinting() && PlayerCharacter->GetCamera()->FieldOfView != CameraConfiguration.SprintFOV ||
 		!PlayerCharacter->GetIsSprinting() && PlayerCharacter->GetCamera()->FieldOfView != CameraConfiguration.DefaultFOV)
 	{
 		float TargetFOV = PlayerCharacter->GetIsSprinting() ? CameraConfiguration.SprintFOV : CameraConfiguration.DefaultFOV;
 		PlayerCharacter->GetCamera()->FieldOfView = FMath::FInterpTo(PlayerCharacter->GetCamera()->FieldOfView, TargetFOV, GetWorld()->GetDeltaSeconds(),2.f );
-	}
+	} */
 }
 
 

@@ -17,7 +17,7 @@ class APlayerCharacterController : public APlayerController
 
 protected:
 	/** The configuration to use for this player character. */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = Configuration, Meta = (DisplayName = "Configuration"))
+	UPROPERTY(BlueprintGetter = GetPlayerCharacterConfiguration, EditAnywhere, Category = Configuration, Meta = (DisplayName = "Configuration"))
 	FPlayerCharacterConfiguration CharacterConfiguration;
 
 	/** Reference to the controlled pawn as a PlayerCharacter instance.*/
@@ -47,6 +47,11 @@ public:
 	/** Checks and returns the current player ground movement type. */
 	UFUNCTION(BlueprintPure, Category = Locomotion, Meta = (DisplayName = "Get Ground Movement Type"))
 	EPlayerGroundMovementType GetGroundMovementType();
+
+	/** Returns the character configuration. */
+	UFUNCTION(BlueprintGetter, Category = Configuration, Meta = (DisplayName = "Get Player Character Configuration"))
+	FORCEINLINE FPlayerCharacterConfiguration GetPlayerCharacterConfiguration() const {return CharacterConfiguration;}
+	
 
 protected:
 	/** Checks whether the player can currently rotate. */
