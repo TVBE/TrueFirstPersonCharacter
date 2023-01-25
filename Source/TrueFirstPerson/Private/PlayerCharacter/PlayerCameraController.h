@@ -72,10 +72,10 @@ private:
 	void UpdateCameraRotation();
 
 	/** Returns a rotation offset for the camera to simulate the camera shaking while moving. */
-	FRotator GetCameraShakeOffset();
+	FRotator GetCameraSwayRotation();
 
 	/** Returns a rotation offset for the camera when the player rotates while sprinting. Used to simulate leaning when running into bends. */
-	FRotator GetCameraLeanOffset();
+	FRotator GetCameraCentripetalRotation();
 	
 	/** Updates the camera's field of view according to the Players movement. */
 	UFUNCTION()
