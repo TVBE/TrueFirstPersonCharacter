@@ -190,10 +190,14 @@ FRotator UPlayerCameraController::GetScaledHeadSocketDeltaRotation()
 			break;
 		}
 	}
-	
-	const FRotator TargetHeadSocketRotation {(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetRotation()
+	// Get the delta head socket rotation.
+	FRotator TargetHeadSocketRotation {(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetRotation()
 		- HeadSocketTransform.GetRotation()) * IntensityMultiplier};
-	
+
+	// Apply scalars
+	TargetHeadSocketRotation = FRotator(TargetHeadSocketRotation.Pitch, (TargetHeadSocketRotation.Yaw * 0), (TargetHeadSocketRotation.Roll * 1.5));
+
+	// Interpolate the rotation value to smooth out jerky rotation changes.
 	if(const UWorld* World {GetWorld()})
 	{
 		InterpolatedHeadSocketRotation = FMath::RInterpTo(InterpolatedHeadSocketRotation, TargetHeadSocketRotation, World->GetDeltaSeconds(), 4);
