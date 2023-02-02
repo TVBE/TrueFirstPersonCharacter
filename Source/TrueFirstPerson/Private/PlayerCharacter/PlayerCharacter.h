@@ -8,7 +8,7 @@
 #include "PlayerVFXController.h"
 #include "PlayerCharacter.generated.h"
 
-UCLASS()
+UCLASS(Abstract, Blueprintable, BlueprintType)
 class APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -34,20 +34,24 @@ private:
 	class USpringArmComponent* FlashlightSpringArm {nullptr};
 
 	/** The PlayerAudioController that handles player audio. */
-	UPROPERTY(BlueprintGetter = GetPlayerAudioController, VisibleAnywhere, Category = Audio, Meta = (DisplayName = "Player Audio Controller"))
-	class UPlayerAudioController* PlayerAudioController {nullptr};
+	UPROPERTY(BlueprintGetter = GetAudioController, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player Audio Controller"))
+	class UPlayerAudioController* AudioController {nullptr};
 
 	/** The PlayerVFXController that handles player VFX. */
-	UPROPERTY(BlueprintGetter = GetPlayerVFXController, VisibleAnywhere, Category = Audio, Meta = (DisplayName = "Player VFX Controller"))
-	class UPlayerVFXController* PlayerVFXController {nullptr};
+	UPROPERTY(BlueprintGetter = GetVFXController, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player VFX Controller"))
+	class UPlayerVFXController* VFXController {nullptr};
 
 	/** The CameraController that handles first person camera behavior. */
-	UPROPERTY(BlueprintGetter = GetCameraController, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Player Camera Controller"))
+	UPROPERTY(BlueprintGetter = GetCameraController, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player Camera Controller"))
 	class UPlayerCameraController* CameraController {nullptr};
 
 	/** The FlashlightController that handles the flashlight behavior. */
-	UPROPERTY(BlueprintGetter = GetFlashlightController, VisibleAnywhere, Category = Flashlight, Meta = (DisplayName = "Player Flashlight Controller"))
+	UPROPERTY(BlueprintGetter = GetFlashlightController, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player Flashlight Controller"))
 	class UPlayerFlashlightController* FlashlightController {nullptr};
+
+	/** The PlayerCharacterMovementComponent that handles the PlayerCharacter's movement. */
+	UPROPERTY(BlueprintGetter = GetPlayerCharacterMovement, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player Character Movement Component"))
+	class UPlayerCharacterMovementComponent* PlayerCharacterMovement {nullptr};
 	
 	/** If true, the character is currently sprinting. This value can only be set by a PlayerController. */
 	UPROPERTY(BlueprintGetter = GetIsSprinting)
@@ -89,13 +93,17 @@ public:
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Flashlight Controller"))
 	FORCEINLINE UPlayerFlashlightController* GetFlashlightController() const {return FlashlightController; }
 
+	/** Returns the PlayerCharacterMovementComponent. */
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Character Movement Component"))
+	FORCEINLINE UPlayerCharacterMovementComponent* GetPlayerCharacterMovement() const {return PlayerCharacterMovement; }
+
 	/** Returns the Player Audio Controller. */
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Audio Controller"))
-	FORCEINLINE UPlayerAudioController* GetPlayerAudioController() const {return PlayerAudioController; }
+	FORCEINLINE UPlayerAudioController* GetAudioController() const {return AudioController; }
 
 	/** Returns the Player VFX Controller*/
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player VFX Controller"))
-	FORCEINLINE UPlayerVFXController* GetPlayerVFXController() const {return PlayerVFXController; }
+	FORCEINLINE UPlayerVFXController* GetVFXController() const {return VFXController; }
 
 	/** Returns whether the player is currently sprinting. */
 	UFUNCTION(BlueprintGetter = GetIsSprinting, Category = Locomotion, Meta = (DisplayName = "Is Sprinting"))

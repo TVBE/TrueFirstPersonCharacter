@@ -5,12 +5,15 @@
 
 #include "PlayerAudioController.h"
 #include "PlayerCameraController.h"
+#include "PlayerCharacterMovementComponent.h"
 #include "PlayerFlashlightController.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Math/Vector.h"
 #include "TrueFirstPerson/TrueFirstPerson.h"
+
+#define IS_BLUEPRINT(Object) (Object->GetClass()->GetName().StartsWith("BP_") || Object->GetClass()->GetName().StartsWith("BPC_"))
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -52,24 +55,60 @@ APlayerCharacter::APlayerCharacter()
 	FlashlightController->bWantsInitializeComponent = true;
 
 	// Construct Audio Controller
-	PlayerAudioController = CreateDefaultSubobject<UPlayerAudioController>(TEXT("Player Audio Controller"));
-	PlayerAudioController->bWantsInitializeComponent = true;
+	AudioController = CreateDefaultSubobject<UPlayerAudioController>(TEXT("Player Audio Controller"));
+	AudioController->bWantsInitializeComponent = true;
 
 	// Construct VFX Controller
-	PlayerVFXController = CreateDefaultSubobject<UPlayerVFXController>(TEXT("Player VFX Controller"));
-	PlayerVFXController->bWantsInitializeComponent = true;
+	VFXController = CreateDefaultSubobject<UPlayerVFXController>(TEXT("Player VFX Controller"));
+	VFXController->bWantsInitializeComponent = true;
+
+	static ConstructorHelpers::FClassFinder<APlayerCharacter> Blueprint(TEXT("/Game/PlayerCharacter/Blueprint/BP_PlayerCharacter"));
+	if(!(Blueprint.Succeeded() || this->GetClass()->GetName().StartsWith("BP_"))) // Check if this class is a Blueprint derived class.
+		{
+		UE_LOG(LogPlayerCharacter, Error, TEXT("Non Blueprint derived instance of APlayerCharacter is created. "
+		"APlayerCharacter was specifically designed to have a Blueprint derived class to extend functionality."
+		"Try to create an instance of a Blueprint derived class of APlayerCharacter instead."))
+		}
+	
 }
 
 void APlayerCharacter::PostInitProperties()
 {
 	Super::PostInitProperties();
+	
+	if(UPlayerCharacterMovementComponent* PlayerCharacterMovementComponent {Cast<UPlayerCharacterMovementComponent>(GetCharacterMovement())})
+	{
+		PlayerCharacterMovement = PlayerCharacterMovementComponent;
+	}
+	else
+	{
+		UE_LOG(LogPlayerCharacter, Error, TEXT("PlayerCharacter does not have PlayerCharacterMovementComponent set as its CharacterMovementComponent."))
+	}
+
+	/** Check if our components are blueprint derived classes or not. */
+	if(!IS_BLUEPRINT(CameraController))
+	{
+		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
+	}
+	if(!IS_BLUEPRINT(FlashlightController))
+	{
+		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
+	}
+	if(!IS_BLUEPRINT(AudioController))
+	{
+		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
+	}
+	if(!IS_BLUEPRINT(VFXController))
+	{
+		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
+	}
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	
 	
 	
