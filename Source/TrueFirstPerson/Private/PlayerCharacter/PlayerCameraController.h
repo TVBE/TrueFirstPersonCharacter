@@ -30,10 +30,14 @@ private:
 	/** The camera configuration. */
 	UPROPERTY(BlueprintReadOnly, Category = Configuration, Meta = (DisplayName = "Camera Configuration", AllowPrivateAccess = "true"))
 	FPlayerCameraConfiguration CameraConfiguration;
-
-	/** The default head socket location from the skeletal mesh of the PlayerCharacterPawn. */
+	
+	/** The default head socket rotation from the skeletal mesh of the PlayerCharacterPawn. */
 	UPROPERTY()
-	FVector HeadSocketLocation {FVector()};
+	FTransform HeadSocketTransform {FTransform()};
+
+	/** Interpolated head socket rotation. */
+	UPROPERTY()
+	FRotator InterpolatedHeadSocketRotation {FRotator()};
 
 	/** The roll offset value of the camera shake rotation. */
 	UPROPERTY()
@@ -76,6 +80,9 @@ private:
 
 	/** Returns a rotation offset for the camera when the player rotates while sprinting. Used to simulate leaning when running into bends. */
 	FRotator GetCameraCentripetalRotation();
+
+	/** Returns a scaled head socket delta rotation from the skeletal mesh of the PlayerCharacterPawn. */
+	FRotator GetScaledHeadSocketDeltaRotation();
 	
 	/** Updates the camera's field of view according to the Players movement. */
 	UFUNCTION()

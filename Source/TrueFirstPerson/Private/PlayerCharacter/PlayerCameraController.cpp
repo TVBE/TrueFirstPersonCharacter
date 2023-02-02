@@ -23,7 +23,7 @@ void UPlayerCameraController::InitializeComponent()
 	PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 	if(PlayerCharacter != nullptr)
 	{
-		HeadSocketLocation = PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetLocation();
+		HeadSocketTransform = PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor);
 		PlayerCharacter->ReceiveControllerChangedDelegate.AddDynamic(this, &UPlayerCameraController::HandleCharacterControllerChanged);
 
 		// Set the default camera properties for the PlayerCharacter's camera.
@@ -83,7 +83,7 @@ void UPlayerCameraController::UpdateCameraLocation()
 	{FMath::GetMappedRangeValueClamped(FVector2d(-30.0, -55.0), FVector2d(0.0, 1.0), PlayerCharacter->GetCamera()->GetComponentRotation().Pitch)};
 	
 	// Get the delta position of the current head socket location in relation to the default location. This allows us to introduce some socket-bound headbobbing with scalable intensity.
-	const FVector SocketLocation {FVector(0, 0,(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetLocation() - HeadSocketLocation).Z * 0.5)};
+	const FVector SocketLocation {FVector(0, 0,(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetLocation() - HeadSocketTransform.GetLocation()).Z * 0.5)};
 	
 	FVector Result {FVector()};
 	// If the player is looking forward or up, we don't need to perform any additional calculations and can set the relative location to the CameraConfiguration's default value.
@@ -110,16 +110,17 @@ void UPlayerCameraController::UpdateCameraLocation()
 // Called by TickComponent.
 void UPlayerCameraController::UpdateCameraRotation()
 {
-	FRotator Sway {CameraConfiguration.EnableCameraSway ? GetCameraSwayRotation() : FRotator()};
-	FRotator CentripetalRotation {CameraConfiguration.EnableCentripetalRotation ? GetCameraCentripetalRotation() : FRotator()};
-	PlayerCharacter->GetCamera()->SetWorldRotation(Sway + CentripetalRotation + PlayerCharacter->GetControlRotation());
+	const FRotator Sway {CameraConfiguration.EnableCameraSway ? GetCameraSwayRotation() : FRotator()};
+	const FRotator CentripetalRotation {CameraConfiguration.EnableCentripetalRotation ? GetCameraCentripetalRotation() : FRotator()};
+	const FRotator SocketRotation {GetScaledHeadSocketDeltaRotation()};
+	PlayerCharacter->GetCamera()->SetWorldRotation(Sway + CentripetalRotation + SocketRotation + PlayerCharacter->GetControlRotation());
 }
 
 // Called by UpdateCameraRotation.
 FRotator UPlayerCameraController::GetCameraSwayRotation()
 {
 	// Get the current ground movement type from the PlayerController.
-	EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
+	const EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
 	// Get a oscillation multiplier value according to the ground movement type.
 	float IntensityMultiplier {0.0};
 	switch(MovementType)
@@ -134,12 +135,12 @@ FRotator UPlayerCameraController::GetCameraSwayRotation()
 		break;
 	}
 	// Get a mapped deviation value that scales the shake intensity and speed. Used to introduce some cyclical pseudo-random variance.
-	double Deviation {FMath::GetMappedRangeValueClamped(FVector2d(-1.0, 1.00), FVector2d(0.75, 1.5),
+	const double Deviation {FMath::GetMappedRangeValueClamped(FVector2d(-1.0, 1.00), FVector2d(0.75, 1.5),
 					UKismetMathLibrary::Cos(UGameplayStatics::GetTimeSeconds(GetWorld()) * 2.4))};
 	
 	// Calculate the target shake rotation.
 	float Intensity {CameraConfiguration.CameraShakeIntensity};
-	double TargetRollOffset {UKismetMathLibrary::Cos(UGameplayStatics::GetTimeSeconds(GetWorld()) * Deviation) * IntensityMultiplier * Deviation * CameraConfiguration.CameraShakeIntensity};
+	const double TargetRollOffset {UKismetMathLibrary::Cos(UGameplayStatics::GetTimeSeconds(GetWorld()) * Deviation) * IntensityMultiplier * Deviation * CameraConfiguration.CameraShakeIntensity};
 	
 	// Interpolate between the current camera roll and the target camera roll.
 	CameraShakeRoll = FMath::FInterpTo(CameraShakeRoll, TargetRollOffset, GetWorld()->GetDeltaSeconds(), 3.0);
@@ -173,6 +174,32 @@ FRotator UPlayerCameraController::GetCameraCentripetalRotation()
 	return Rotation;
 }
 
+FRotator UPlayerCameraController::GetScaledHeadSocketDeltaRotation()
+{
+	// Get the current ground movement type from the PlayerController.
+	const EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
+	// Get a oscillation multiplier value according to the ground movement type.
+	float IntensityMultiplier {0.0};
+	if(!PlayerCharacter->GetMovementComponent()->IsFalling())
+	{
+		switch(MovementType)
+		{
+		case 2: IntensityMultiplier = 1.25; // Sprinting
+			break;
+		default: IntensityMultiplier = 0.5; // Miscellaneous
+			break;
+		}
+	}
+	
+	const FRotator TargetHeadSocketRotation {(PlayerCharacter->GetMesh()->GetSocketTransform("head", RTS_Actor).GetRotation()
+		- HeadSocketTransform.GetRotation()) * IntensityMultiplier};
+	
+	if(const UWorld* World {GetWorld()})
+	{
+		InterpolatedHeadSocketRotation = FMath::RInterpTo(InterpolatedHeadSocketRotation, TargetHeadSocketRotation, World->GetDeltaSeconds(), 4);
+	}
+	return InterpolatedHeadSocketRotation;
+}
 
 // Called by TickComponent.
 void UPlayerCameraController::UpdateCameraFieldOfView()
@@ -188,14 +215,6 @@ void UPlayerCameraController::UpdateCameraFieldOfView()
 	} 
 
 	PlayerCharacter->GetCamera()->FieldOfView = FMath::FInterpTo(PlayerCharacter->GetCamera()->FieldOfView, TargetFOV, GetWorld()->GetDeltaSeconds(),2.f );
-	
-	// Implementation that only checks if the player is sprinting
-	/* if(PlayerCharacter->GetIsSprinting() && PlayerCharacter->GetCamera()->FieldOfView != CameraConfiguration.SprintFOV ||
-		!PlayerCharacter->GetIsSprinting() && PlayerCharacter->GetCamera()->FieldOfView != CameraConfiguration.DefaultFOV)
-	{
-		float TargetFOV = PlayerCharacter->GetIsSprinting() ? CameraConfiguration.SprintFOV : CameraConfiguration.DefaultFOV;
-		PlayerCharacter->GetCamera()->FieldOfView = FMath::FInterpTo(PlayerCharacter->GetCamera()->FieldOfView, TargetFOV, GetWorld()->GetDeltaSeconds(),2.f );
-	} */
 }
 
 
