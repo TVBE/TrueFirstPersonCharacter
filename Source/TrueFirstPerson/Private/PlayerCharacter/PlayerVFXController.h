@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlayerVFXComponent.generated.h"
+#include "PlayerVFXController.generated.h"
 
 
 UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UPlayerVFXComponent : public UActorComponent
+class UPlayerVFXController : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPlayerVFXComponent();
+	UPlayerVFXController();
 
 protected:
 	// Called when the game starts

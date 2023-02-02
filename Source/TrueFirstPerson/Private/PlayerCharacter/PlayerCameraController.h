@@ -14,6 +14,7 @@ UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UPlayerCameraController : public UActorComponent
 {
 	GENERATED_BODY()
+
 private:
 	/** Reference to the PlayerCharacter. */
 	UPROPERTY()
@@ -47,7 +48,8 @@ private:
 	UPROPERTY()
 	double CameraLeanRoll {0.0};
 	
-
+	// Camera shakes
+	
 	
 public:	
 	// Sets default values for this component's properties

@@ -3,7 +3,7 @@
 
 #include "PlayerCharacter.h"
 
-#include "PlayerAudioComponent.h"
+#include "PlayerAudioController.h"
 #include "PlayerCameraController.h"
 #include "PlayerFlashlightController.h"
 #include "Camera/CameraComponent.h"
@@ -42,10 +42,6 @@ APlayerCharacter::APlayerCharacter()
 	Flashlight->SetupAttachment(FlashlightSpringArm);
 	Flashlight->Intensity = 5000.0;
 	Flashlight->SetVisibility(false); // We don't want the flashlight to be enabled on startup.
-
-	// Construct AudioComponent
-	PlayerAudioComponent = CreateDefaultSubobject<UPlayerAudioComponent>(TEXT("Player Audio Component"));
-	PlayerAudioComponent->bWantsInitializeComponent = true;
 	
 	// Construct CameraController
 	CameraController = CreateDefaultSubobject<UPlayerCameraController>(TEXT("Player Camera Controller"));
@@ -53,14 +49,29 @@ APlayerCharacter::APlayerCharacter()
 	
 	// Construct FlashlightController
 	FlashlightController = CreateDefaultSubobject<UPlayerFlashlightController>(TEXT("Player Flashlight Controller"));
-	
-	
+	FlashlightController->bWantsInitializeComponent = true;
+
+	// Construct Audio Controller
+	PlayerAudioController = CreateDefaultSubobject<UPlayerAudioController>(TEXT("Player Audio Controller"));
+	PlayerAudioController->bWantsInitializeComponent = true;
+
+	// Construct VFX Controller
+	PlayerVFXController = CreateDefaultSubobject<UPlayerVFXController>(TEXT("Player VFX Controller"));
+	PlayerVFXController->bWantsInitializeComponent = true;
+}
+
+void APlayerCharacter::PostInitProperties()
+{
+	Super::PostInitProperties();
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	
+	
 	
 }
 

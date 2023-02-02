@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlayerAudioComponent.generated.h"
+#include "PlayerAudioController.generated.h"
 
 
 UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UPlayerAudioComponent : public UActorComponent
+class UPlayerAudioController : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPlayerAudioComponent();
+	UPlayerAudioController();
 
 protected:
 	// Called when the game starts

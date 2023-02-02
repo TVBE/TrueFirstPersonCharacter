@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "LandingIntensity.h"
+#include "PlayerVFXController.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -19,7 +20,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Locomotion, Meta = (DisplayName = "Is Jumping"))
 	bool IsJumping;
 
-
 private:
 	/** The camera for the player. */
 	UPROPERTY(BlueprintGetter = GetCamera, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Camera"))
@@ -33,9 +33,13 @@ private:
 	UPROPERTY(BlueprintGetter = GetFlashlightSpringArm)
 	class USpringArmComponent* FlashlightSpringArm {nullptr};
 
-	/** The PlayerAudioComponent that handles player audio. */
-	UPROPERTY(BlueprintGetter = GetPlayerAudioComponent, VisibleAnywhere, Category = Audio, Meta = (DisplayName = "Player Audio Component"))
-	class UPlayerAudioComponent* PlayerAudioComponent {nullptr};
+	/** The PlayerAudioController that handles player audio. */
+	UPROPERTY(BlueprintGetter = GetPlayerAudioController, VisibleAnywhere, Category = Audio, Meta = (DisplayName = "Player Audio Controller"))
+	class UPlayerAudioController* PlayerAudioController {nullptr};
+
+	/** The PlayerVFXController that handles player VFX. */
+	UPROPERTY(BlueprintGetter = GetPlayerVFXController, VisibleAnywhere, Category = Audio, Meta = (DisplayName = "Player VFX Controller"))
+	class UPlayerVFXController* PlayerVFXController {nullptr};
 
 	/** The CameraController that handles first person camera behavior. */
 	UPROPERTY(BlueprintGetter = GetCameraController, VisibleAnywhere, Category = Camera, Meta = (DisplayName = "Player Camera Controller"))
@@ -44,7 +48,7 @@ private:
 	/** The FlashlightController that handles the flashlight behavior. */
 	UPROPERTY(BlueprintGetter = GetFlashlightController, VisibleAnywhere, Category = Flashlight, Meta = (DisplayName = "Player Flashlight Controller"))
 	class UPlayerFlashlightController* FlashlightController {nullptr};
-
+	
 	/** If true, the character is currently sprinting. This value can only be set by a PlayerController. */
 	UPROPERTY(BlueprintGetter = GetIsSprinting)
 	bool IsSprinting {false};
@@ -61,31 +65,37 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void PostInitProperties() override;
+
 
 public:	
 	/** Returns the camera component. */
-	UFUNCTION(BlueprintGetter, Category = Camera, Meta = (DisplayName = "Get Camera"))
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Camera"))
 	FORCEINLINE UCameraComponent* GetCamera() const {return Camera; }
 
 	/** Returns the flashlight component. */
-	UFUNCTION(BlueprintGetter, Category = Flashlight, Meta = (DisplayName = "Get Flashlight"))
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Flashlight"))
 	FORCEINLINE USpotLightComponent* GetFlashlight() const {return Flashlight; }
 
 	/** Returns the flashlight SpringArmComponent. */
-	UFUNCTION(BlueprintGetter, Category = Flashlight, Meta = (DisplayName = "Get Flashlight Spring Arm"))
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Flashlight Spring Arm"))
 	FORCEINLINE USpringArmComponent* GetFlashlightSpringArm() const {return FlashlightSpringArm; }
 
 	/** Returns the Player Camera Controller. */
-	UFUNCTION(BlueprintGetter, Category = Camera, Meta = (DisplayName = "Get Camera Controller"))
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Camera Controller"))
 	FORCEINLINE UPlayerCameraController* GetCameraController() const {return CameraController; }
 
 	/** Returns the Player Flashlight Controller. */
-	UFUNCTION(BlueprintGetter, Category = Flashlight, Meta = (DisplayName = "Get Flashlight Controller"))
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Flashlight Controller"))
 	FORCEINLINE UPlayerFlashlightController* GetFlashlightController() const {return FlashlightController; }
 
-	/** Returns the Player Audio Component. */
-	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Audio Component"))
-	FORCEINLINE UPlayerAudioComponent* GetPlayerAudioComponent() const {return PlayerAudioComponent; }
+	/** Returns the Player Audio Controller. */
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Audio Controller"))
+	FORCEINLINE UPlayerAudioController* GetPlayerAudioController() const {return PlayerAudioController; }
+
+	/** Returns the Player VFX Controller*/
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player VFX Controller"))
+	FORCEINLINE UPlayerVFXController* GetPlayerVFXController() const {return PlayerVFXController; }
 
 	/** Returns whether the player is currently sprinting. */
 	UFUNCTION(BlueprintGetter = GetIsSprinting, Category = Locomotion, Meta = (DisplayName = "Is Sprinting"))
@@ -107,3 +117,5 @@ private:
 	/** Checks whether the player has landed after falling. */
 	bool IsPlayerLanding();
 };
+
+
