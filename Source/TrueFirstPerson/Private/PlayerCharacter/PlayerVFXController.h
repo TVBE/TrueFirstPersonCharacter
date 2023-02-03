@@ -6,8 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "PlayerVFXController.generated.h"
 
-
-UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+/** UPlayerAudioController is an Actor Component responsible for managing all VFX specific to the player character. 
+ *	This class provides a simple and convenient way for designers to customize the player's VFX implementation.
+ *	@Brief ActorComponent for managing player visual effects.
+ */
+UCLASS(Blueprintable, ClassGroup=(PlayerCharacter), meta=(BlueprintSpawnableComponent) )
 class UPlayerVFXController : public UActorComponent
 {
 	GENERATED_BODY()

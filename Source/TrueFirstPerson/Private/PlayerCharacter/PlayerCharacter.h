@@ -52,11 +52,6 @@ private:
 	/** The PlayerCharacterMovementComponent that handles the PlayerCharacter's movement. */
 	UPROPERTY(BlueprintGetter = GetPlayerCharacterMovement, VisibleAnywhere, Category = Components, Meta = (DisplayName = "Player Character Movement Component"))
 	class UPlayerCharacterMovementComponent* PlayerCharacterMovement {nullptr};
-	
-	/** If true, the character is currently sprinting. This value can only be set by a PlayerController. */
-	UPROPERTY(BlueprintGetter = GetIsSprinting)
-	bool IsSprinting {false};
-
 
 public:
 	// Sets default values for this character's properties
@@ -92,11 +87,7 @@ public:
 	/** Returns the Player Flashlight Controller. */
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Flashlight Controller"))
 	FORCEINLINE UPlayerFlashlightController* GetFlashlightController() const {return FlashlightController; }
-
-	/** Returns the PlayerCharacterMovementComponent. */
-	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Character Movement Component"))
-	FORCEINLINE UPlayerCharacterMovementComponent* GetPlayerCharacterMovement() const {return PlayerCharacterMovement; }
-
+	
 	/** Returns the Player Audio Controller. */
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Audio Controller"))
 	FORCEINLINE UPlayerAudioController* GetAudioController() const {return AudioController; }
@@ -105,14 +96,10 @@ public:
 	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player VFX Controller"))
 	FORCEINLINE UPlayerVFXController* GetVFXController() const {return VFXController; }
 
-	/** Returns whether the player is currently sprinting. */
-	UFUNCTION(BlueprintGetter = GetIsSprinting, Category = Locomotion, Meta = (DisplayName = "Is Sprinting"))
-	FORCEINLINE bool GetIsSprinting() const {return IsSprinting; }
+	/** Returns the PlayerCharacterMovementComponent. */
+	UFUNCTION(BlueprintGetter, Category = Components, Meta = (DisplayName = "Get Player Character Movement Component"))
+	FORCEINLINE UPlayerCharacterMovementComponent* GetPlayerCharacterMovement() const {return PlayerCharacterMovement; }
 
-	/** Sets whether the player is currently sprinting. */
-	UFUNCTION(BlueprintCallable, Category = Locomotion, Meta = (DisplayName = "Set IsSprinting"))
-	void SetIsSprinting(bool Value, APlayerController* PlayerController);
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -122,8 +109,6 @@ protected:
 	void SetIsJumping(bool Value);
 
 private:
-	/** Checks whether the player has landed after falling. */
-	bool IsPlayerLanding();
 
 #if WITH_EDITOR
 	/** Checks whether an object is a blueprint derived class or not. */

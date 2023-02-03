@@ -6,8 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "PlayerAudioController.generated.h"
 
-
-UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+/** UPlayerAudioController is an Actor Component responsible for managing all audio specific to the player character. 
+ *	This class provides a simple and convenient way for designers to customize the player's audio implementation.
+ *	@Brief ActorComponent for managing player audio.
+ */
+UCLASS(Blueprintable, ClassGroup=(PlayerCharacter), meta=(BlueprintSpawnableComponent) )
 class UPlayerAudioController : public UActorComponent
 {
 	GENERATED_BODY()

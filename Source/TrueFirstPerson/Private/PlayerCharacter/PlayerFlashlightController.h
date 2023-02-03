@@ -6,8 +6,11 @@
 #include "Components/ActorComponent.h"
 #include "PlayerFlashlightController.generated.h"
 
-
-UCLASS(Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+/** UPlayerFlashlightController is an Actor Component responsible for controlling the player's flashlight. 
+ *	This class provides a simple and convenient way for designers to customize the player's flashlight behavior.
+ *	@Brief ActorComponent for controlling the player's flashlight.
+ */
+UCLASS(Blueprintable, ClassGroup=(PlayerCharacter), meta=(BlueprintSpawnableComponent) )
 class UPlayerFlashlightController : public UActorComponent
 {
 	GENERATED_BODY()

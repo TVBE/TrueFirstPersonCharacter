@@ -5,9 +5,9 @@
 #include "TrueFirstPerson/TrueFirstPerson.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "PlayerCharacter.h"
+#include "PlayerCharacterMovementComponent.h"
 #include "Math/Rotator.h"
 #include "PlayerFlashlightController.h"
-#include "PlayerGroundMovementType.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -135,7 +135,7 @@ void APlayerCharacterController::HandleSprintActionPressed()
 void APlayerCharacterController::HandleSprintActionReleased()
 {
 	IsSprintPending = false;
-	if(PlayerCharacter->GetIsSprinting())
+	if(PlayerCharacter->GetPlayerCharacterMovement() && PlayerCharacter->GetPlayerCharacterMovement()->GetIsSprinting())
 	{
 		StopSprinting();
 	}
@@ -178,7 +178,7 @@ void APlayerCharacterController::HandleFlashlightActionPressed()
 
 void APlayerCharacterController::UpdateCurrentActions()
 {
-	if(PlayerCharacter->GetIsSprinting() && !CanSprint())
+	if(PlayerCharacter->GetPlayerCharacterMovement() && PlayerCharacter->GetPlayerCharacterMovement()->GetIsSprinting() && !CanSprint())
 	{
 		StopSprinting();
 	}
@@ -187,7 +187,7 @@ void APlayerCharacterController::UpdateCurrentActions()
 
 void APlayerCharacterController::UpdatePendingActions()
 {
-	if(PlayerCharacter->GetIsSprinting() && CanSprint())
+	if(PlayerCharacter->GetPlayerCharacterMovement() && PlayerCharacter->GetPlayerCharacterMovement()->GetIsSprinting() && CanSprint())
 	{
 		if(!GetCharacter()->GetMovementComponent()->IsCrouching())
 		{
@@ -202,7 +202,7 @@ void APlayerCharacterController::UpdatePendingActions()
 	}
 	if(IsCrouchPending && !GetCharacter()->GetMovementComponent()->IsCrouching() && CanCrouch())
 	{
-			if(PlayerCharacter->GetIsSprinting())
+			if(PlayerCharacter->GetPlayerCharacterMovement() && PlayerCharacter->GetPlayerCharacterMovement()->GetIsSprinting())
 			{
 				StopSprinting();
 				IsSprintPending = false;
@@ -228,21 +228,6 @@ float APlayerCharacterController::GetHorizontalRotationInput()
 	}
 	return 0.0;
 }
-
-/** Checks the current movement state and returns a corresponding enumeration value. This function is designed for Blueprint usage to easily implement branching behavior. */
-EPlayerGroundMovementType APlayerCharacterController::GetGroundMovementType()
-{
-	if(PlayerCharacter->GetIsSprinting())
-	{
-		return EPlayerGroundMovementType::Sprinting;
-	}
-	if(GetCharacter()->GetMovementComponent()->IsMovingOnGround() && GetCharacter()->GetVelocity().SquaredLength() >= 25)
-	{
-		return EPlayerGroundMovementType::Walking;
-	}
-	return EPlayerGroundMovementType::Idle;
-}
-
 
 bool APlayerCharacterController::CanRotate()
 {
@@ -297,13 +282,19 @@ bool APlayerCharacterController::CanStandUp()
 void APlayerCharacterController::StartSprinting()
 {
 	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.SprintSpeed;
-	PlayerCharacter->SetIsSprinting(true, this);
+	if(UPlayerCharacterMovementComponent* PlayerCharacterMovement {PlayerCharacter->GetPlayerCharacterMovement()})
+	{
+		PlayerCharacterMovement->SetIsSprinting(true, this);	
+	}
 }
 
 void APlayerCharacterController::StopSprinting()
 {
 	GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = CharacterConfiguration.WalkSpeed;
-	PlayerCharacter->SetIsSprinting(false, this);
+	if(UPlayerCharacterMovementComponent* PlayerCharacterMovement {PlayerCharacter->GetPlayerCharacterMovement()})
+	{
+		PlayerCharacterMovement->SetIsSprinting(false, this);	
+	}
 }
 
 void APlayerCharacterController::StartCrouching()
@@ -316,7 +307,7 @@ void APlayerCharacterController::StopCrouching()
 	// Temp
 }
 
-float APlayerCharacterController::GetClearanceAbovePawn()
+float APlayerCharacterController::GetClearanceAbovePawn() const
 {
 	const AActor* Actor {this->GetPawn()};
 	const FVector Start {Actor->GetActorLocation()};
@@ -332,7 +323,7 @@ float APlayerCharacterController::GetClearanceAbovePawn()
 	return -1.f; // We return -1 if no hit result is produced by the collision query. This means that there is more than 500 units of clearance above the character.
 }
 
-FHitResult APlayerCharacterController::GetCameraLookAtQuery()
+FHitResult APlayerCharacterController::GetCameraLookAtQuery() const
 {
 	const float TraceLength {250.f};
 	const FVector Start {this->PlayerCameraManager->GetCameraLocation()};

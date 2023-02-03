@@ -138,14 +138,6 @@ void APlayerCharacter::SetIsJumping(bool Value)
 	IsJumping = Value;
 }
 
-// Called by the PlayerController
-void APlayerCharacter::SetIsSprinting(bool Value, APlayerController* PlayerController)
-{
-	if(Controller == GetController())
-	{
-		IsSprinting = Value;
-	}
-}
 
 
 

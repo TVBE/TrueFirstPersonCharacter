@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "PlayerGroundMovementType.h"
+#include "PlayerCharacterMovementComponent.h"
 #include "PlayerCharacterConfiguration.h"
 #include "PlayerCharacterController.generated.h"
 
-/** The PlayerController for the PlayerCharacter. This class is responsible for handling all user input to the player Pawn.
- *	The actual input bindings for this controller are implemented in a Blueprint derived class of this class to allow convenient tweaks to input . */
-UCLASS(Blueprintable)
+/** The PlayerController for the PlayerCharacter. This class is responsible for handling all user input to the player Pawn. */
+UCLASS(Blueprintable, ClassGroup=(PlayerCharacter))
 class APlayerCharacterController : public APlayerController
 {
 	GENERATED_BODY()
@@ -43,11 +42,7 @@ public:
 	/** Returns the current horizontal rotation input value from the PlayerController. */
 	UFUNCTION(BlueprintPure, Category = Input, Meta = (DisplayName = "Get Horizontal Rotation Input"))
 	float GetHorizontalRotationInput();
-
-	/** Checks and returns the current player ground movement type. */
-	UFUNCTION(BlueprintPure, Category = Locomotion, Meta = (DisplayName = "Get Ground Movement Type"))
-	EPlayerGroundMovementType GetGroundMovementType();
-
+	
 	/** Returns the character configuration. */
 	UFUNCTION(BlueprintGetter, Category = Configuration, Meta = (DisplayName = "Get Player Character Configuration"))
 	FORCEINLINE FPlayerCharacterConfiguration GetPlayerCharacterConfiguration() const {return CharacterConfiguration;}
@@ -104,11 +99,11 @@ protected:
 	
 	/** Performs a collision query above the Pawn and returns the clearance. This will return -1.f if the query did not produce any hit results. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Get Clearance Above Pawn"))
-	float GetClearanceAbovePawn();
+	float GetClearanceAbovePawn() const;
 	
 	/** Performs a collision query in front of the camera and returns the hit result. */
 	UFUNCTION(BlueprintPure, Category = Default, Meta = (DisplayName = "Get Camera Look At Query"))
-	FHitResult GetCameraLookAtQuery();
+	FHitResult GetCameraLookAtQuery() const;
 
 private:
 	virtual void BeginPlay() override;

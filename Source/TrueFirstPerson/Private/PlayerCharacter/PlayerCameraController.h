@@ -8,9 +8,12 @@
 #include "UObject/WeakObjectPtr.h"
 #include "PlayerCameraController.generated.h"
 
-
+/** UPlayerCameraController is an Actor Component responsible for managing the player camera's behavior, such as camera shakes and other effects.
+ *	This class provides a simple and convenient way for designers to customize the camera's behavior and add special effects to the player's view.
+ *	@Brief ActorComponent for managing player camera behavior.
+ */
 class APlayerCharacterController;
-UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, ClassGroup=(PlayerCharacter), meta=(BlueprintSpawnableComponent) )
 class UPlayerCameraController : public UActorComponent
 {
 	GENERATED_BODY()

@@ -4,8 +4,9 @@
 #include "PlayerCameraController.h"
 #include "PlayerCharacter.h"
 #include "PlayerCharacterController.h"
+#include "PlayerCharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
+#include "PlayerCharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -120,7 +121,8 @@ void UPlayerCameraController::UpdateCameraRotation()
 FRotator UPlayerCameraController::GetCameraSwayRotation()
 {
 	// Get the current ground movement type from the PlayerController.
-	const EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
+	if(!PlayerCharacter->GetPlayerCharacterMovement()) {return FRotator();};
+	const EPlayerGroundMovementType MovementType {PlayerCharacter->GetPlayerCharacterMovement()->GetGroundMovementType()};
 	// Get a oscillation multiplier value according to the ground movement type.
 	float IntensityMultiplier {0.0};
 	switch(MovementType)
@@ -154,7 +156,7 @@ FRotator UPlayerCameraController::GetCameraCentripetalRotation()
 {
 	FRotator Rotation {FRotator()};
 	double TargetRoll {0.0};
-	if(PlayerCharacter->GetIsSprinting())
+	if(PlayerCharacter->GetPlayerCharacterMovement() && PlayerCharacter->GetPlayerCharacterMovement()->GetIsSprinting())
 	{
 		// When the player is moving laterally while sprinting, we want the camera to lean into that direction.
 		const float LateralVelocityMultiplier {0.002353f * CameraConfiguration.VelocityCentripetalRotation};
@@ -177,7 +179,8 @@ FRotator UPlayerCameraController::GetCameraCentripetalRotation()
 FRotator UPlayerCameraController::GetScaledHeadSocketDeltaRotation()
 {
 	// Get the current ground movement type from the PlayerController.
-	const EPlayerGroundMovementType MovementType {PlayerCharacterController->GetGroundMovementType()};
+	if(!PlayerCharacter->GetPlayerCharacterMovement()) {return FRotator();};
+	const EPlayerGroundMovementType MovementType {PlayerCharacter->GetPlayerCharacterMovement()->GetGroundMovementType()};
 	// Get a oscillation multiplier value according to the ground movement type.
 	float IntensityMultiplier {0.0};
 	if(!PlayerCharacter->GetMovementComponent()->IsFalling())
