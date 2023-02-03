@@ -14,13 +14,30 @@ enum class EPlayerGroundMovementType : uint8
 	Sprinting			UMETA(DisplayName = "Sprinting"),
 };
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum EPlayerLocomotionEvent
+{
+	JUMP				UMETA(DisplayName = "Jump"),
+	FALL				UMETA(DisplayName = "Fall"),
+	LANDINGSOFT			UMETA(DisplayName = "Soft Landing"),
+	LANDINGHARD			UMETA(DisplayName = "Hard Landing"),
+	LANDINGHEAVY		UMETA(DisplayName = "Heavy Landing"),
+	CROUCHSTART			UMETA(DisplayName = "Start Crouching"),
+	CHROUCHEND			UMETA(DisplayName = "Stop Crouching"),
+	SPRINTSTART			UMETA(DisplayName = "Start Sprinting"),
+	SPRINTEND			UMETA(DisplayName = "Stop Sprinting")
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLocomotionEvent, EPlayerLocomotionEvent, Value);
+
 UCLASS()
 class UPlayerCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintAssignable, Meta = (DisplayName = "Locomotion Event"))
+	FLocomotionEvent LocomotionEventDelegate;
 
 private:
 	/** When true, the player is currently sprinting. */
@@ -32,6 +49,9 @@ private:
 	bool IsJumping {false};
 
 public:
+	virtual bool DoJump(bool bReplayingMoves) override;
+	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations) override;
+	
 	UFUNCTION(BlueprintGetter, Category = Default, Meta = (DisplayName = "Is Sprinting"))
 	FORCEINLINE bool GetIsSprinting() const {return IsSprinting; }
 
