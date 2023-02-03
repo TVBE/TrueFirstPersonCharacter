@@ -12,8 +12,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Math/Vector.h"
 #include "TrueFirstPerson/TrueFirstPerson.h"
+// Define macros
+#define LOG_BLUEPRINT_REQUIRED(Object) \
+const FString Name {Object->GetClass()->GetName()}; \
+UE_LOG(LogPlayerCharacter, Warning, TEXT("%s is not a blueprint derived class. Please implement a blueprint derived class to allow designers to extend functionality."), *Name); \
 
-#define IS_BLUEPRINT(Object) (Object->GetClass()->GetName().StartsWith("BP_") || Object->GetClass()->GetName().StartsWith("BPC_"))
+	
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -61,15 +65,6 @@ APlayerCharacter::APlayerCharacter()
 	// Construct VFX Controller
 	VFXController = CreateDefaultSubobject<UPlayerVFXController>(TEXT("Player VFX Controller"));
 	VFXController->bWantsInitializeComponent = true;
-
-	static ConstructorHelpers::FClassFinder<APlayerCharacter> Blueprint(TEXT("/Game/PlayerCharacter/Blueprint/BP_PlayerCharacter"));
-	if(!(Blueprint.Succeeded() || this->GetClass()->GetName().StartsWith("BP_"))) // Check if this class is a Blueprint derived class.
-		{
-		UE_LOG(LogPlayerCharacter, Error, TEXT("Non Blueprint derived instance of APlayerCharacter is created. "
-		"APlayerCharacter was specifically designed to have a Blueprint derived class to extend functionality."
-		"Try to create an instance of a Blueprint derived class of APlayerCharacter instead."))
-		}
-	
 }
 
 void APlayerCharacter::PostInitProperties()
@@ -85,23 +80,33 @@ void APlayerCharacter::PostInitProperties()
 		UE_LOG(LogPlayerCharacter, Error, TEXT("PlayerCharacter does not have PlayerCharacterMovementComponent set as its CharacterMovementComponent."))
 	}
 
-	/** Check if our components are blueprint derived classes or not. */
-	if(!IS_BLUEPRINT(CameraController))
+#if WITH_EDITOR
+	if(!(IsRunningCommandlet() && UE::IsSavingPackage()))
 	{
-		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
+		/** Check if this instance of a PlayerCharacter is a blueprint derived class or not. */
+		if(!IsBlueprintClass(this))
+		{
+			LOG_BLUEPRINT_REQUIRED(this);
+		}
+		/** Check if our components are blueprint derived classes or not. */
+		if(!IsBlueprintClass(CameraController))
+		{
+			LOG_BLUEPRINT_REQUIRED(CameraController);
+		}
+		if(!IsBlueprintClass(FlashlightController))
+		{
+			LOG_BLUEPRINT_REQUIRED(FlashlightController);
+		}
+		if(!IsBlueprintClass(AudioController))
+		{
+			LOG_BLUEPRINT_REQUIRED(AudioController);
+		}
+		if(!IsBlueprintClass(VFXController))
+		{
+			LOG_BLUEPRINT_REQUIRED(VFXController);
+		}
 	}
-	if(!IS_BLUEPRINT(FlashlightController))
-	{
-		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
-	}
-	if(!IS_BLUEPRINT(AudioController))
-	{
-		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
-	}
-	if(!IS_BLUEPRINT(VFXController))
-	{
-		// UE_LOG(LogPlayerCharacter, Warning, TEXT(""))
-	}
+#endif
 }
 
 // Called when the game starts or when spawned

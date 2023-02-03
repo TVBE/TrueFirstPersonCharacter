@@ -124,6 +124,13 @@ protected:
 private:
 	/** Checks whether the player has landed after falling. */
 	bool IsPlayerLanding();
+
+#if WITH_EDITOR
+	/** Checks whether an object is a blueprint derived class or not. */
+	static bool IsBlueprintClass(const UObject* Object)
+	{return static_cast<bool>(Object->GetClass()->ClassFlags & CLASS_CompiledFromBlueprint);}
+#endif
+	
 };
 
 
