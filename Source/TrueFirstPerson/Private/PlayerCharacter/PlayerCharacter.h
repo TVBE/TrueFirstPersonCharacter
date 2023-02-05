@@ -111,11 +111,15 @@ protected:
 private:
 
 #if WITH_EDITOR
+	/** Checks whether a component is properly initialized. */
+	static void ValidateObject(const UObject* Object, const FString ObjectName);
+	
 	/** Checks whether an object is a blueprint derived class or not. */
 	static bool IsBlueprintClass(const UObject* Object)
 	{return static_cast<bool>(Object->GetClass()->ClassFlags & CLASS_CompiledFromBlueprint);}
 #endif
 	
 };
+
 
 

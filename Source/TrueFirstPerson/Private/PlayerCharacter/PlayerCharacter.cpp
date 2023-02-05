@@ -13,11 +13,6 @@
 #include "Math/Vector.h"
 #include "TrueFirstPerson/TrueFirstPerson.h"
 // Define macros
-#define LOG_BLUEPRINT_REQUIRED(Object) \
-const FString Name {Object->GetClass()->GetName()}; \
-UE_LOG(LogPlayerCharacter, Warning, TEXT("%s is not a blueprint derived class. Please implement a blueprint derived class to allow designers to extend functionality."), *Name); \
-
-	
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -84,27 +79,12 @@ void APlayerCharacter::PostInitProperties()
 	if(!(IsRunningCommandlet() && UE::IsSavingPackage()))
 	{
 		/** Check if this instance of a PlayerCharacter is a blueprint derived class or not. */
-		if(!IsBlueprintClass(this))
-		{
-			LOG_BLUEPRINT_REQUIRED(this);
-		}
-		/** Check if our components are blueprint derived classes or not. */
-		if(!IsBlueprintClass(CameraController))
-		{
-			LOG_BLUEPRINT_REQUIRED(CameraController);
-		}
-		if(!IsBlueprintClass(FlashlightController))
-		{
-			LOG_BLUEPRINT_REQUIRED(FlashlightController);
-		}
-		if(!IsBlueprintClass(AudioController))
-		{
-			LOG_BLUEPRINT_REQUIRED(AudioController);
-		}
-		if(!IsBlueprintClass(VFXController))
-		{
-			LOG_BLUEPRINT_REQUIRED(VFXController);
-		}
+		ValidateObject(this, "PlayerCharacter");
+		/** Check if all components have been succesfully initialized. */
+		ValidateObject(CameraController, "CameraController");
+		ValidateObject(FlashlightController, "FlashlightController");
+		ValidateObject(AudioController, "AudioController");
+		ValidateObject(VFXController, "VFXController");
 	}
 #endif
 }
@@ -138,6 +118,20 @@ void APlayerCharacter::SetIsJumping(bool Value)
 	IsJumping = Value;
 }
 
+#if WITH_EDITOR
+void APlayerCharacter::ValidateObject(const UObject* Object, const FString ObjectName)
+{
+	if(!Object)
+	{
+		UE_LOG(LogPlayerCharacter, Error, TEXT("%s was not properly initialized during the construction of the PlayerCharacter."), *ObjectName); \
+	}
+	else if (!IsBlueprintClass(Object))
+	{
+		UE_LOG(LogPlayerCharacter, Warning, TEXT("%s is not a blueprint derived class. Please implement a blueprint derived class to allow designers to extend functionality."), *ObjectName);
+	}
+	
+}
+#endif
 
 
 
