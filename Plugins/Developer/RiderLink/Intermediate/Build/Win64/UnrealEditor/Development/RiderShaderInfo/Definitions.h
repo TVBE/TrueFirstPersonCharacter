@@ -58,8 +58,8 @@
 #define UE_IS_ENGINE_MODULE 0
 #define UE_DISABLE_INLINE_GEN_CPP 0
 #define UE_ENABLE_INCLUDE_ORDER_DEPRECATED_IN_5_1 1
-#define UE_PROJECT_NAME TrueFirstPerson
-#define UE_TARGET_NAME TrueFirstPersonEditor
+#define UE_PROJECT_NAME FirstPersonCharacter
+#define UE_TARGET_NAME FirstPersonCharacterEditor
 #define UE_MODULE_NAME "RiderShaderInfo"
 #define UE_PLUGIN_NAME "RiderLink"
 #define IMPLEMENT_ENCRYPTION_KEY_REGISTRATION() 

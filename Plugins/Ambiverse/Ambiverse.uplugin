@@ -1,0 +1,35 @@
+{
+	"FileVersion": 3,
+	"Version": 0.5,
+	"VersionName": "1.0",
+	"FriendlyName": "Ambiverse",
+	"Description": "A plugin for creating dynamic parameter driven 3D soundscapes.",
+	"Category": "Audio",
+	"CreatedBy": "Tim Verberne",
+	"CreatedByURL": "www.timverberne.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Ambiverse",
+			"Type": "Runtime",
+			"LoadingPhase": "PreLoadingScreen"
+		},
+		{
+			"Name": "AmbiverseEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PreLoadingScreen"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "Metasound",
+			"Enabled": true
+		}
+	]
+}
